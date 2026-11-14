@@ -214,6 +214,36 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
           </svg>
           <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-neutral-700);margin-top:4px"><span>Day 0</span><span>Max {{ sim.maxY }} items</span><span>Day {{ sim.maxX }}</span></div>
         </div>
+        <div class="blueprint" style="padding:14px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-bottom:8px">
+            <span style="font-family:var(--font-heading);font-weight:600;font-size:17px">Throughput · items finished per day</span>
+            <span style="font-size:12px;color:var(--color-neutral-700)">{{ sim.tpPeriod }} · max {{ sim.tpMax }} / day</span>
+          </div>
+          <svg viewBox="0 0 600 180" preserveAspectRatio="none" role="img" aria-label="Daily throughput bar chart" style="width:100%;height:180px;display:block;border-left:1px solid var(--color-neutral-500);border-bottom:1px solid var(--color-neutral-500)">
+            <line x1="0" y1="90" x2="600" y2="90" style="stroke:var(--color-divider)"></line>
+            <path d="{{ sim.tpBars }}" style="fill:var(--color-accent-400)"></path>
+          </svg>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-neutral-700);margin-top:4px"><span>Day {{ sim.tpStart }}</span><span>Day {{ sim.tpEnd }}</span></div>
+        </div>
+        <div class="blueprint" style="padding:14px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-bottom:8px">
+            <span style="font-family:var(--font-heading);font-weight:600;font-size:17px">Cycle time · completion day × days</span>
+            <span style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px">
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:50%;background:var(--color-accent-400)"></span>Completed item</span>
+              <span style="color:var(--color-accent-700)">P50: {{ sim.p50 }}</span>
+              <span style="color:var(--color-accent-800)">P85: {{ sim.p85 }}</span>
+            </span>
+          </div>
+          <svg viewBox="0 0 600 180" preserveAspectRatio="none" role="img" aria-label="Cycle time by completion day with 50th and 85th percentile lines" style="width:100%;height:180px;display:block;border-left:1px solid var(--color-neutral-500);border-bottom:1px solid var(--color-neutral-500)">
+            <line x1="0" y1="90" x2="600" y2="90" style="stroke:var(--color-divider)"></line>
+            <line x1="0" y1="{{ sim.p50Y }}" x2="600" y2="{{ sim.p50Y }}" style="stroke:var(--color-accent-700);stroke-width:2;stroke-dasharray:6 4"></line>
+            <line x1="0" y1="{{ sim.p85Y }}" x2="600" y2="{{ sim.p85Y }}" style="stroke:var(--color-accent-800);stroke-width:2;stroke-dasharray:2 4"></line>
+            <path d="{{ sim.cyclePoints }}" style="fill:var(--color-accent-400);stroke:var(--color-bg);stroke-width:1"></path>
+          </svg>
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-neutral-700);margin-top:4px"><span>Day 0</span><span>Max {{ sim.cycleMax }} days</span><span>Day {{ sim.day }}</span></div>
+        </div>
         <div style="padding:10px 14px;border:1px solid var(--color-divider);background:{{ sim.msgBg }};font-size:14px">{{ sim.msg }}</div>
       </div>
     </div>
@@ -566,6 +596,27 @@ class Component extends DCLogic {
     const X=i=>(i/maxX*600).toFixed(1), Y=v=>(240-v/maxY*232).toFixed(1);
     const line=key=>H.map((h,i)=>`${X(i)},${Y(h[key])}`);
     const area=(top,bot)=>{const t=line(top); const bt=bot?line(bot).reverse():[`${X(H.length-1)},240`,`0,240`]; return 'M'+t.join(' L')+' L'+bt.join(' L')+' Z';};
+    const firstDay=Math.max(1,st.sim.day-29);
+    const dailyThroughput=Array.from({length:Math.max(0,st.sim.day-firstDay+1)},(_,i)=>{
+      const day=firstDay+i; return H[day].f-H[day-1].f;
+    });
+    const tpMax=Math.max(1,...dailyThroughput), tpSlot=600/Math.max(1,dailyThroughput.length);
+    const tpBars=dailyThroughput.map((count,i)=>{
+      const x=(i*tpSlot+tpSlot*0.16).toFixed(1), width=(tpSlot*0.68).toFixed(1);
+      const height=(count/tpMax*150).toFixed(1), y=(170-height).toFixed(1);
+      return `M${x},170 V${y} h${width} V170 Z`;
+    }).join(' ');
+    const finished=st.sim.items.filter(i=>i.f!=null);
+    const cycles=finished.map(i=>i.f-i.s+1).sort((a,b)=>a-b);
+    const percentile=p=>cycles.length?cycles[Math.max(0,Math.ceil(p*cycles.length)-1)]:0;
+    const simP50=percentile(0.5), simP85=percentile(0.85);
+    const cycleLabel=days=>`${days} ${days===1?'day':'days'}`;
+    const cycleYMax=Math.max(1,Math.ceil((cycles[cycles.length-1]||0)*1.15));
+    const cycleY=days=>(170-days/cycleYMax*160).toFixed(1);
+    const cyclePoints=finished.map(i=>{
+      const x=(i.f/Math.max(1,st.sim.day)*600).toFixed(1), y=cycleY(i.f-i.s+1);
+      return `M${(+x-4).toFixed(1)},${y}a4,4 0 1,0 8,0a4,4 0 1,0 -8,0`;
+    }).join(' ');
     const cfg=st.cfg; const lead=m.fin?m.lead:0;
     let simMsg='Press Run 30 days to start. Then try again with a different WIP limit.', simOk=false;
     if(st.sim.day>0){ if(st.xp['b:flow']!=null&&st.sim.day>=30&&m.lead<=5&&m.tp>=1.5){simMsg='Stable flow: short lead time and steady throughput. Flow Master earned.';simOk=true;}
@@ -577,7 +628,12 @@ class Component extends DCLogic {
       onArrival:num('arrival'),onCap:num('cap'),onWip:num('wip'),runLabel:st.running?'Pause':'Run 30 days',onRun:()=>this.toggleRun(),onStep:()=>this.stepSim(),
       onReset:()=>{clearInterval(this.timer);this.setState({sim:this.simInit(),running:false});},
       stats:[{v:m.wip,l:'WIP now'},{v:m.wait,l:'Waiting'},{v:m.tp.toFixed(2),l:'Throughput / day'},{v:m.fin?m.cycle.toFixed(1):'–',l:'Avg cycle time (d)'},{v:m.fin?lead.toFixed(1):'–',l:'Avg lead time (d)'}],
-      pWait:area('a','s'),pProg:area('s','f'),pDone:area('f',null),maxX,maxY,msg:simMsg,msgBg:simOk?C.accL:'transparent'};
+      pWait:area('a','s'),pProg:area('s','f'),pDone:area('f',null),maxX,maxY,
+      tpBars,tpMax,tpPeriod:st.sim.day>=30?'Last 30 days':(st.sim.day?`Days 1–${st.sim.day}`:'No days simulated'),
+      tpStart:st.sim.day?firstDay:0,tpEnd:st.sim.day,
+      cyclePoints,cycleMax:cycleYMax,p50:simP50?cycleLabel(simP50):'–',p85:simP85?cycleLabel(simP85):'–',
+      p50Y:cycles.length?cycleY(simP50):190,p85Y:cycles.length?cycleY(simP85):190,
+      msg:simMsg,msgBg:simOk?C.accL:'transparent'};
     // law
     const LO=['3 weeks','75 weeks','0.33 weeks','10 weeks'];
     const law={wip:st.law.wip,tp:st.law.tp,ct:(st.law.wip/st.law.tp).toFixed(1),
