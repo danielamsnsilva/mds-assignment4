@@ -265,18 +265,19 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
       <div class="blueprint" style="padding:22px;display:flex;flex-direction:column;gap:14px">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <h6 style="color:var(--color-accent-700);margin:0"><button type="button" class="gl" data-def="{{ gl.little.d }}" onClick="{{ gl.little.open }}">Little's Law</button></h6>
-        <div style="font-family:var(--font-heading);font-weight:600;font-size:clamp(24px,4vw,34px)">Avg cycle time = Avg WIP ÷ Avg throughput</div>
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:clamp(24px,4vw,34px)">Lead time = WIP / Throughput</div>
         <label style="display:flex;flex-direction:column;gap:4px;font-size:13px"><span style="display:flex;justify-content:space-between"><span>Average WIP (items)</span><strong>{{ law.wip }}</strong></span><input type="range" min="1" max="30" step="1" value="{{ law.wip }}" onChange="{{ law.onWip }}"></label>
         <label style="display:flex;flex-direction:column;gap:4px;font-size:13px"><span style="display:flex;justify-content:space-between"><span>Average throughput (items/day)</span><strong>{{ law.tp }}</strong></span><input type="range" min="0.5" max="6" step="0.5" value="{{ law.tp }}" onChange="{{ law.onTp }}"></label>
         <div style="display:flex;align-items:baseline;gap:10px;border-top:1px solid var(--color-divider);padding-top:12px">
           <span style="font-family:var(--font-heading);font-weight:600;font-size:56px;line-height:1;color:var(--color-accent-700)">{{ law.ct }}</span><span>days average cycle time</span>
         </div>
-        <p style="margin:0;font-size:13px;color:var(--color-neutral-700)">Holds for averages in a stable system, where items arrive about as fast as they leave. Halving WIP at the same throughput halves cycle time.</p>
+        <p style="margin:0;font-size:13px;color:var(--color-neutral-700)">One of Kanban’s strengths is WIP limits, setting caps on how much work can be in each stage. Using Little’s Law, you can calculate how much WIP your system can handle if you want to maintain a specific lead time:
+        WIP = Lead Time × Throughput</p>
       </div>
       <div class="blueprint" style="padding:22px;display:flex;flex-direction:column;gap:12px">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
         <h6 style="color:var(--color-accent-700);margin:0">Challenge · +40 XP</h6>
-        <div style="font-family:var(--font-heading);font-weight:600;font-size:22px">A team has 15 items in progress and finishes 5 items per week. What is its average cycle time?</div>
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:22px">A team has 15 items in progress and finishes 5 items per week. What is its Lead time?</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <sc-for list="{{ law.opts }}" as="o" hint-placeholder-count="4">
             <button onClick="{{ o.onClick }}" style="min-height:48px;font:inherit;font-size:15px;cursor:pointer;border:1px solid {{ o.border }};background:{{ o.bg }};color:{{ o.fg }};text-decoration:{{ o.deco }}">{{ o.label }}</button>
