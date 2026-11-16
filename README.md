@@ -1,9 +1,16 @@
 # mds-assignment4
 
+## Deploy to Netlify
+
+Connect this directory to Netlify. The site is static, so no build command is
+needed; `netlify.toml` publishes the project root and configures the access
+protection for `KanbanFlowLab.html`.
+
 ## Netlify password protection
 
-The Kanban page is protected by a Netlify Edge Function. Configure these environment variables for the site in the Netlify dashboard
-for production and any deploy contexts where the page should be protected.
+The Kanban page is protected by a Netlify Edge Function. Configure these
+environment variables for the site in the Netlify dashboard for production
+and any deploy contexts where the page should be protected.
 By default, Netlify variables are available to all scopes; if your plan lets
 you choose a scope, select **Functions** (Edge Functions use this scope too):
 
