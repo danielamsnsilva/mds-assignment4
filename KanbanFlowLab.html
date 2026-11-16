@@ -14,6 +14,11 @@ body{margin:0}
 a{color:var(--color-accent-700)}
 a:hover{color:var(--color-accent-900)}
 input[type=range]{accent-color:var(--color-accent);width:100%}
+/* H8 glossary: inline terms */
+.gl{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;border-bottom:1px dashed var(--color-accent-700);cursor:help;position:relative;display:inline;text-align:inherit}
+.gl:focus-visible{outline:2px solid var(--color-accent);outline-offset:2px}
+@media (hover:hover){.gl:hover::after{content:attr(data-def);position:absolute;left:0;top:calc(100% + 6px);z-index:50;width:min(280px,70vw);padding:10px 12px;background:var(--color-accent-900);color:var(--color-bg);font-family:var(--font-body);font-size:13px;font-weight:400;line-height:1.4;text-align:left;box-shadow:var(--shadow-md);white-space:normal;pointer-events:none}}
+.gl:focus-visible::after{content:attr(data-def);position:absolute;left:0;top:calc(100% + 6px);z-index:50;width:min(280px,70vw);padding:10px 12px;background:var(--color-accent-900);color:var(--color-bg);font-family:var(--font-body);font-size:13px;font-weight:400;line-height:1.4;text-align:left;box-shadow:var(--shadow-md);white-space:normal;pointer-events:none}
 </style>
 </helmet>
 <div style="min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
@@ -31,6 +36,7 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
         <span style="font-size:11px;color:var(--color-neutral-700)">Lv {{ level }} · {{ rank }}</span>
       </span>
       <span style="font-family:var(--font-heading);font-weight:600;font-size:18px">{{ badgeCount }}/5 <span style="font-size:11px;font-family:var(--font-body);font-weight:400;color:var(--color-neutral-700)">badges</span></span>
+      <button type="button" onClick="{{ openGlossary }}" class="btn btn-secondary" style="min-height:36px;font-size:13px">Glossary</button>
     </div>
   </div>
   <div style="height:3px;background:var(--color-neutral-200)"><div style="height:3px;background:var(--color-accent);width:{{ progressPct }};transition:width .3s"></div></div>
@@ -92,7 +98,7 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
 
 <sc-if value="{{ is.basics }}" hint-placeholder-val="{{ false }}">
   <section data-screen-label="Basics" style="display:flex;flex-direction:column;gap:36px">
-    <p style="font-size:18px;max-width:64ch;text-wrap:pretty">Kanban is a strategy for optimizing the flow of value. Work is made visible on a board, the amount of work in progress is limited, and new work is pulled only when there is capacity for it.</p>
+    <p style="font-size:18px;max-width:64ch;text-wrap:pretty">Kanban is a strategy for optimizing the flow of value. Work is made visible on a board, the amount of <button type="button" class="gl" data-def="{{ gl.wip.d }}" onClick="{{ gl.wip.open }}">work in progress</button> is limited, and new work is <button type="button" class="gl" data-def="{{ gl.pull.d }}" onClick="{{ gl.pull.open }}">pulled</button> only when there is capacity for it.</p>
     <div>
       <h4>Three practices from The Kanban Guide (2020)</h4>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:20px;margin-top:12px">
@@ -124,7 +130,7 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
           </button>
         </sc-for>
       </div>
-      <p style="margin-top:16px;font-size:14px;max-width:70ch;color:var(--color-neutral-800)"><strong>Lead time vs cycle time.</strong> Cycle time starts when the team starts an item. Lead time starts when the item is requested, so it also includes the time spent waiting in the backlog.</p>
+      <p style="margin-top:16px;font-size:14px;max-width:70ch;color:var(--color-neutral-800)"><strong><button type="button" class="gl" data-def="{{ gl.lead.d }}" onClick="{{ gl.lead.open }}">Lead time</button> vs <button type="button" class="gl" data-def="{{ gl.cycle.d }}" onClick="{{ gl.cycle.open }}">cycle time</button>.</strong> Cycle time starts when the team starts an item. Lead time starts when the item is requested, so it also includes the time spent waiting in the backlog.</p>
     </div>
   </section>
 </sc-if>
@@ -132,7 +138,7 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
 <sc-if value="{{ is.board }}" hint-placeholder-val="{{ false }}">
   <section data-screen-label="Board" style="display:flex;flex-direction:column;gap:20px">
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:20px;align-items:end">
-      <p style="font-size:17px;max-width:60ch;margin:0;text-wrap:pretty"><strong>Challenge:</strong> move all 8 cards to Done. Drag a card to the next column, or use its arrows. Columns with a WIP limit refuse new cards when full, and blocked cards can't move until the team swarms on them.</p>
+      <p style="font-size:17px;max-width:60ch;margin:0;text-wrap:pretty"><strong>Challenge:</strong> move all 8 cards to Done. Drag a card to the next column, or use its arrows. Columns with a <button type="button" class="gl" data-def="{{ gl.wipLimit.d }}" onClick="{{ gl.wipLimit.open }}">WIP limit</button> refuse new cards when full, and <button type="button" class="gl" data-def="{{ gl.blocked.d }}" onClick="{{ gl.blocked.open }}">blocked</button> cards can't move until the team <button type="button" class="gl" data-def="{{ gl.swarm.d }}" onClick="{{ gl.swarm.open }}">swarms</button> on them.</p>
       <div style="display:flex;gap:24px;justify-content:flex-end;flex-wrap:wrap">
         <div><div style="font-family:var(--font-heading);font-weight:600;font-size:28px">{{ board.moves }}</div><div style="font-size:12px;color:var(--color-neutral-700)">moves</div></div>
         <div><div style="font-family:var(--font-heading);font-weight:600;font-size:28px">{{ board.hits }}</div><div style="font-size:12px;color:var(--color-neutral-700)">WIP limit hits</div></div>
@@ -174,7 +180,7 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
 
 <sc-if value="{{ is.flow }}" hint-placeholder-val="{{ false }}">
   <section data-screen-label="Flow simulator" style="display:flex;flex-direction:column;gap:20px">
-    <p style="font-size:17px;max-width:66ch;margin:0;text-wrap:pretty">A simulated team receives new requests every day. Each item in progress shares the team's capacity, and every extra item adds context-switching cost. Watch the cumulative flow diagram (CFD) as you change the WIP limit. <strong>Challenge:</strong> after 30+ days, keep average lead time at 5 days or less with throughput of at least 1.5 items/day.</p>
+    <p style="font-size:17px;max-width:66ch;margin:0;text-wrap:pretty">A simulated team receives new requests every day. Each item in progress shares the team's capacity, and every extra item adds context-switching cost. Watch the <button type="button" class="gl" data-def="{{ gl.cfd.d }}" onClick="{{ gl.cfd.open }}">cumulative flow diagram (CFD)</button> as you change the WIP limit. <strong>Challenge:</strong> after 30+ days, keep average lead time at 5 days or less with <button type="button" class="gl" data-def="{{ gl.tp.d }}" onClick="{{ gl.tp.open }}">throughput</button> of at least 1.5 items/day.</p>
     <div style="display:flex;flex-wrap:wrap;gap:24px;align-items:flex-start">
       <div class="blueprint" style="flex:1 1 280px;padding:20px;display:flex;flex-direction:column;gap:18px">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
@@ -256,7 +262,7 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:24px">
       <div class="blueprint" style="padding:22px;display:flex;flex-direction:column;gap:14px">
         <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
-        <h6 style="color:var(--color-accent-700);margin:0">Little's Law</h6>
+        <h6 style="color:var(--color-accent-700);margin:0"><button type="button" class="gl" data-def="{{ gl.little.d }}" onClick="{{ gl.little.open }}">Little's Law</button></h6>
         <div style="font-family:var(--font-heading);font-weight:600;font-size:clamp(24px,4vw,34px)">Avg cycle time = Avg WIP ÷ Avg throughput</div>
         <label style="display:flex;flex-direction:column;gap:4px;font-size:13px"><span style="display:flex;justify-content:space-between"><span>Average WIP (items)</span><strong>{{ law.wip }}</strong></span><input type="range" min="1" max="30" step="1" value="{{ law.wip }}" onChange="{{ law.onWip }}"></label>
         <label style="display:flex;flex-direction:column;gap:4px;font-size:13px"><span style="display:flex;justify-content:space-between"><span>Average throughput (items/day)</span><strong>{{ law.tp }}</strong></span><input type="range" min="0.5" max="6" step="0.5" value="{{ law.tp }}" onChange="{{ law.onTp }}"></label>
@@ -318,10 +324,10 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
             <div style="display:flex;gap:6px;margin-top:4px"><sc-for list="{{ data.bars }}" as="b" hint-placeholder-count="8"><span style="flex:1;text-align:center;font-size:11px">{{ b.id }}</span></sc-for></div>
           </div>
           <sc-if value="{{ isAdvanced }}" hint-placeholder-val="{{ false }}">
-            <p style="margin:0;font-size:14px;color:var(--color-neutral-800)"><strong>Forecasting with percentiles.</strong> Instead of an average, quote the 85th percentile: "85% of our items finish in {{ data.p85 }} days or less." Darker bars sit above that line. Customers get a probability, not a promise.</p>
+            <p style="margin:0;font-size:14px;color:var(--color-neutral-800)"><strong>Forecasting with percentiles.</strong> Instead of an average, quote the <button type="button" class="gl" data-def="{{ gl.p85.d }}" onClick="{{ gl.p85.open }}">85th percentile</button>: "85% of our items finish in {{ data.p85 }} days or less." Darker bars sit above that line. Customers get a probability, not a promise.</p>
           </sc-if>
           <sc-if value="{{ isBeginner }}" hint-placeholder-val="{{ true }}">
-            <p style="margin:0;font-size:14px;color:var(--color-neutral-800)">Darker bars are the slowest 15% of items. Those outliers are often worth discussing in a retrospective: what blocked them?</p>
+            <p style="margin:0;font-size:14px;color:var(--color-neutral-800)">Darker bars are the slowest 15% of items (above the <button type="button" class="gl" data-def="{{ gl.p85.d }}" onClick="{{ gl.p85.open }}">85th percentile</button>). Those outliers are often worth discussing in a retrospective: what blocked them?</p>
           </sc-if>
         </div>
       </div>
@@ -425,6 +431,29 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
   </section>
 </sc-if>
 
+<sc-if value="{{ qc.show }}" hint-placeholder-val="{{ false }}">
+  <section data-screen-label="Quick check" aria-label="Quick check" style="margin-top:48px;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px">
+      <h4 style="margin:0">Quick check</h4>
+      <span style="font-size:13px;color:var(--color-neutral-700)">Check your understanding before moving on · +15 XP per correct answer · {{ qc.score }}/{{ qc.total }} correct</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:16px">
+      <sc-for list="{{ qc.items }}" as="it" hint-placeholder-count="2">
+        <div class="blueprint" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+          <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+          <div style="font-size:16px;font-weight:500;text-wrap:pretty">{{ it.q }}</div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ it.opts }}" as="o" hint-placeholder-count="3">
+              <button type="button" onClick="{{ o.onClick }}" style="min-height:44px;padding:8px 12px;text-align:left;font:inherit;font-size:15px;cursor:pointer;border:1px solid {{ o.border }};background:{{ o.bg }};color:{{ o.fg }};text-decoration:{{ o.deco }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+          <div role="status" style="font-size:14px;min-height:20px;color:var(--color-neutral-800)">{{ it.why }}</div>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+</sc-if>
+
 <sc-if value="{{ showNav }}" hint-placeholder-val="{{ false }}">
   <div style="display:flex;justify-content:space-between;gap:12px;margin-top:48px;padding-top:20px;border-top:1px solid var(--color-divider)">
     <button onClick="{{ prev }}" class="btn btn-secondary" style="min-height:44px">← Back</button>
@@ -435,6 +464,39 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
 
 <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
   <div style="position:fixed;left:50%;transform:translateX(-50%);bottom:24px;z-index:40;background:var(--color-accent-900);color:var(--color-bg);padding:12px 18px;font-family:var(--font-heading);font-weight:600;font-size:17px;box-shadow:var(--shadow-lg)">{{ toast }}</div>
+</sc-if>
+
+<sc-if value="{{ glPop.show }}" hint-placeholder-val="{{ false }}">
+  <div role="dialog" aria-label="{{ glPop.term }}" class="blueprint" style="position:fixed;left:16px;right:16px;bottom:84px;z-index:45;max-width:440px;margin:0 auto;background:var(--color-bg);box-shadow:var(--shadow-lg);padding:16px 18px;display:flex;flex-direction:column;gap:8px">
+    <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+      <span style="font-family:var(--font-heading);font-weight:600;font-size:20px">{{ glPop.term }}</span>
+      <button type="button" onClick="{{ closeGlPop }}" class="btn btn-ghost" style="min-width:36px;min-height:36px" aria-label="Close definition">✕</button>
+    </div>
+    <p style="margin:0;font-size:15px;line-height:1.45">{{ glPop.def }}</p>
+    <div><button type="button" onClick="{{ openGlossary }}" class="btn btn-ghost" style="min-height:36px;font-size:13px;padding-inline:0">See all terms in the glossary →</button></div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ glOpen }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeGlossary }}" style="position:fixed;inset:0;z-index:60;background:color-mix(in srgb,var(--color-accent-900) 45%,transparent);display:flex;justify-content:center;align-items:flex-start;padding:5vh 16px;overflow-y:auto">
+    <div role="dialog" aria-label="Glossary" onClick="{{ stopClick }}" class="blueprint" style="width:min(720px,100%);background:var(--color-bg);box-shadow:var(--shadow-lg);padding:22px;display:flex;flex-direction:column;gap:14px">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <h3 style="margin:0">Glossary</h3>
+        <button type="button" onClick="{{ closeGlossary }}" class="btn btn-ghost" style="min-width:40px;min-height:40px" aria-label="Close glossary">✕</button>
+      </div>
+      <p style="margin:0;font-size:13px;color:var(--color-neutral-700)">Underlined terms in the chapters open these definitions. Sources: The Kanban Guide (2020), Vacanti (2015), Anderson (2010), Little (1961).</p>
+      <dl style="margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:1px;background:var(--color-divider);border:1px solid var(--color-divider)">
+        <sc-for list="{{ glList }}" as="g" hint-placeholder-count="13">
+          <div style="background:var(--color-bg);padding:12px 14px">
+            <dt style="font-family:var(--font-heading);font-weight:600;font-size:17px">{{ g.term }}</dt>
+            <dd style="margin:4px 0 0;font-size:14px;line-height:1.45">{{ g.def }}</dd>
+          </div>
+        </sc-for>
+      </dl>
+    </div>
+  </div>
 </sc-if>
 
 <div style="position:fixed;right:16px;bottom:16px;z-index:30;display:flex;flex-direction:column;align-items:flex-end;gap:10px">
@@ -495,6 +557,35 @@ const QA=[
  {q:'The top edge of the Done band on a CFD is flat for a week. This suggests…',o:['Throughput was zero that week','WIP dropped to zero','Cycle time improved','Arrivals stopped'],a:0,w:'Flat Done means nothing was delivered.'},
  {q:'Which of these is one of the three Kanban Guide practices?',o:['Sprint planning','Estimating in story points','Actively managing items in a workflow','Daily status reporting'],a:2,w:'Define and visualize, actively manage, improve the workflow.'},
  {q:'Little\'s Law gives reliable averages when…',o:['The team is large','Arrivals roughly equal departures over the period','All items are the same size','WIP limits are disabled'],a:1,w:'It assumes a stable system.'}];
+// H5: quick check at the end of each chapter (2 questions per chapter)
+const QC={
+ basics:[
+  {q:'Which of these is NOT one of the three practices in The Kanban Guide?',o:['Define and visualize the workflow','Estimate every item in story points','Actively manage items in the workflow'],a:1,w:'The three practices are: define and visualize the workflow, actively manage items, and improve the workflow. Estimation is not required.'},
+  {q:'An item was requested on day 1, started on day 4 and finished on day 6. Counting both days, what is its cycle time?',o:['3 days','6 days','2 days'],a:0,w:'Cycle time runs from start (day 4) to finish (day 6): 3 days. Lead time, from request to finish, would be 6 days.'}],
+ board:[
+  {q:'In progress is at its WIP limit (3/3). What should the team do next?',o:['Start a new card anyway','Help finish an item that is already in progress','Raise the WIP limit for good'],a:1,w:'Stop starting, start finishing: capacity frees up when work leaves the column.'},
+  {q:'A card is blocked. What is the Kanban response?',o:['Leave it and pull new work','Swarm on it to remove the blocker','Move it back to To do'],a:1,w:'Actively managing items means unblocking work quickly so it does not age.'}],
+ flow:[
+  {q:'With no WIP limit and more arrivals than capacity, what happens to lead time?',o:['It goes down','It keeps growing','It stays the same'],a:1,w:'Work piles up in the queue, so every new item waits longer and lead time grows.'},
+  {q:'On a CFD, what does the slope of the Done band show?',o:['WIP','Throughput','Work item age'],a:1,w:'A steeper Done band means more items finished per day, which is throughput.'}],
+ metrics:[
+  {q:'Average WIP is 10 items and throughput is 2 items/day. What is the average cycle time?',o:['20 days','5 days','0.2 days'],a:1,w:'Little\'s Law: cycle time = WIP ÷ throughput = 10 ÷ 2 = 5 days.'},
+  {q:'Why forecast with the 85th percentile instead of the average?',o:['It is always the smaller number','It states a probability: 85% of items finish within that time','Averages are not allowed in Kanban'],a:1,w:'A percentile tells the customer how likely a date is, which an average cannot do.'}]};
+// H8: glossary (sources: Kanban Guide 2020, Vacanti 2015, Anderson 2010, Little 1961)
+const GLOSSARY=[
+ {k:'wip',term:'Work in Progress (WIP)',def:'The number of work items that have been started but not yet finished.'},
+ {k:'wipLimit',term:'WIP limit',def:'The maximum number of items allowed in a workflow state, or in the whole workflow, at the same time. New work starts only when the count is below the limit.'},
+ {k:'pull',term:'Pull system',def:'New work is started only when there is capacity for it, instead of being pushed into the workflow as soon as it is requested.'},
+ {k:'tp',term:'Throughput',def:'The number of work items finished per unit of time, for example items per day or per week.'},
+ {k:'cycle',term:'Cycle time',def:'The elapsed time between when a work item started and when it finished.'},
+ {k:'lead',term:'Lead time',def:'The elapsed time between when a work item was requested and when it was delivered. It includes the time spent waiting before work started.'},
+ {k:'age',term:'Work item age',def:'The elapsed time since a work item started, measured only for items that are not finished yet. Old items are an early warning of risk.'},
+ {k:'cfd',term:'Cumulative flow diagram (CFD)',def:'A chart of how many items have reached each workflow state over time. The height of a band is WIP; the slope of the Done band is throughput.'},
+ {k:'blocked',term:'Blocked item',def:'A work item that cannot move forward because of a dependency, a missing decision or another impediment.'},
+ {k:'swarm',term:'Swarming',def:'Team members stop starting new work and help finish or unblock an item that is already in progress.'},
+ {k:'bottleneck',term:'Bottleneck',def:'The workflow state with the least capacity. Work queues in front of it, and it limits the throughput of the whole system.'},
+ {k:'p85',term:'85th percentile',def:'The value below which 85% of observations fall. "85th percentile cycle time is 8 days" means 85% of items finished in 8 days or less.'},
+ {k:'little',term:'Little\'s Law',def:'Average cycle time = average WIP ÷ average throughput. It holds for averages in a stable system, where items arrive about as fast as they leave.'}];
 const BADGES=[
  {k:'b:board',name:'Stop Starting',how:'Clear the Kanban board'},
  {k:'b:flow',name:'Flow Master',how:'Beat the simulator challenge'},
@@ -509,15 +600,19 @@ const C={ink:'var(--color-text)',bg:'var(--color-bg)',div:'var(--color-divider)'
 class Component extends DCLogic {
   state = this.load();
   load(){
-    let s={path:null,ch:0,xp:{},board:CARDS(),moves:0,hits:0,msg:'Tip: In progress is full (3/3). Finish something before starting more.',revealed:{},sortAns:{},lawPick:null,rows:ROWS(),law:{wip:12,tp:3},quiz:{i:0,pick:null,score:0,done:false},chatOpen:false,toast:null,sim:this.simInit(),cfg:{arrival:2,cap:5,wip:4},running:false};
+    let s={path:null,ch:0,xp:{},board:CARDS(),moves:0,hits:0,msg:'Tip: In progress is full (3/3). Finish something before starting more.',revealed:{},sortAns:{},lawPick:null,rows:ROWS(),law:{wip:12,tp:3},quiz:{i:0,pick:null,score:0,done:false},chatOpen:false,toast:null,sim:this.simInit(),cfg:{arrival:2,cap:5,wip:4},running:false,qc:{},glOpen:false,glTerm:null};
     try{const d=JSON.parse(localStorage.getItem(KEY)||'null'); if(d) s={...s,...d};}catch(e){}
     return s;
   }
   componentDidUpdate(){
-    const {path,ch,xp,board,moves,hits,revealed,sortAns,lawPick,rows,law,quiz,cfg}=this.state;
-    try{localStorage.setItem(KEY,JSON.stringify({path,ch,xp,board,moves,hits,revealed,sortAns,lawPick,rows,law,quiz,cfg}));}catch(e){}
+    const {path,ch,xp,board,moves,hits,revealed,sortAns,lawPick,rows,law,quiz,cfg,qc}=this.state;
+    try{localStorage.setItem(KEY,JSON.stringify({path,ch,xp,board,moves,hits,revealed,sortAns,lawPick,rows,law,quiz,cfg,qc}));}catch(e){}
   }
-  componentWillUnmount(){clearInterval(this.timer);clearTimeout(this.tt);}
+  componentDidMount(){
+    this.onKey=e=>{if(e.key==='Escape'&&(this.state.glOpen||this.state.glTerm)) this.setState({glOpen:false,glTerm:null});};
+    window.addEventListener('keydown',this.onKey);
+  }
+  componentWillUnmount(){clearInterval(this.timer);clearTimeout(this.tt);window.removeEventListener('keydown',this.onKey);}
   chapters(){return this.state.path==='advanced'?ADV:BEG;}
   award(key,amt,label){
     if(this.state.xp[key]!=null) return;
@@ -664,6 +759,15 @@ class Component extends DCLogic {
       onRetry:()=>this.setState({quiz:{i:0,pick:null,score:0,done:false}}),
       verdict:qz.score>=5?'Quiz Ace earned. You can explain flow metrics to your team.':'Review the Metrics and Simulator chapters, then try again. 5 correct earns the badge.'};
     const badges=BADGES.map(x=>{const got=st.xp[x.k]!=null; return {...x,state:got?'Earned':'Locked',op:got?1:0.55,bg:got?'var(--color-accent-900)':'transparent',fg:got?C.bg:C.ink};});
+    // H5 quick check
+    const QQ=QC[cur]||[]; let qcScore=0;
+    const qcItems=QQ.map((x,i)=>{const id=cur+':'+i; const p=st.qc[id]; const answered=p!=null; if(answered&&p===x.a) qcScore++;
+      return {q:x.q,why:answered?(p===x.a?'Correct. ':'Not quite. ')+x.w:'',
+        opts:x.o.map((l,j)=>({label:l,...this.optStyle(answered,j===x.a,p===j),onClick:()=>{if(answered) return; this.setState(s=>({qc:{...s.qc,[id]:j}})); if(j===x.a) this.award('qc:'+id,15);}}))};});
+    const qc={show:QQ.length>0,items:qcItems,score:qcScore,total:QQ.length};
+    // H8 glossary
+    const gl={}; GLOSSARY.forEach(g=>{gl[g.k]={d:g.term+': '+g.def,open:()=>this.setState({glTerm:g.k})};});
+    const glG=GLOSSARY.find(g=>g.k===st.glTerm);
     const isLast=ci===chs.length-2;
     return {is,steps,xp,level,rank:RANKS[Math.min(level-1,RANKS.length-1)],badgeCount:BADGES.filter(x=>st.xp[x.k]!=null).length,badges,
       pathLabel:st.path==='advanced'?'Path B · Advanced':st.path==='beginner'?'Path A · Beginner':'No path yet',
@@ -677,10 +781,14 @@ class Component extends DCLogic {
       revealedCount:Object.keys(st.revealed).length,
       board:{cols,done:bdone,moves:st.moves,hits:st.hits,msg:st.msg,msgBg:bdone===8?C.accL:'transparent'},
       resetBoard:()=>this.setState({board:CARDS(),moves:0,hits:0,msg:'Board reset. In progress is full (3/3).'}),
-      sim,law,data,sort:{items,score:sc,answered:ans},quiz,
+      sim,law,data,sort:{items,score:sc,answered:ans},quiz,qc,gl,
+      glList:GLOSSARY.map(g=>({term:g.term,def:g.def})),glOpen:!!st.glOpen,
+      glPop:{show:!!glG&&!st.glOpen,term:glG?glG.term:'',def:glG?glG.def:''},
+      openGlossary:()=>this.setState({glOpen:true,glTerm:null}),closeGlossary:()=>this.setState({glOpen:false}),
+      closeGlPop:()=>this.setState({glTerm:null}),stopClick:e=>e.stopPropagation(),
       showNav:is.chapter&&!is.finish,nextLabel:isLast?'Finish · +25 XP':'Complete chapter · +25 XP',
       prev:()=>this.go(ci-1),next:()=>{this.award('ch:'+cur,25); this.go(ci+1);},
-      restart:()=>{clearInterval(this.timer); this.setState({path:null,ch:0,xp:{},board:CARDS(),moves:0,hits:0,revealed:{},sortAns:{},lawPick:null,rows:ROWS(),quiz:{i:0,pick:null,score:0,done:false},sim:this.simInit(),running:false,msg:'Tip: In progress is full (3/3). Finish something before starting more.'});},
+      restart:()=>{clearInterval(this.timer); this.setState({path:null,ch:0,xp:{},board:CARDS(),moves:0,hits:0,revealed:{},sortAns:{},lawPick:null,rows:ROWS(),quiz:{i:0,pick:null,score:0,done:false},qc:{},sim:this.simInit(),running:false,msg:'Tip: In progress is full (3/3). Finish something before starting more.'});},
       toast:st.toast,chatOpen:st.chatOpen,toggleChat:()=>this.setState(s=>({chatOpen:!s.chatOpen})),closeChat:()=>this.setState({chatOpen:false}),openChat:()=>this.setState({chatOpen:true})};
   }
 }
