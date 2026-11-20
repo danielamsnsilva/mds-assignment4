@@ -207,18 +207,20 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
           <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-bottom:8px">
             <span style="font-family:var(--font-heading);font-weight:600;font-size:17px">Cumulative flow · day {{ sim.day }}</span>
             <span style="display:flex;gap:12px;font-size:12px">
-              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:var(--color-accent-200);border:1px solid var(--color-accent-400)"></span>Waiting</span>
-              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:var(--color-accent-400)"></span>In progress</span>
-              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:var(--color-accent-700)"></span>Done</span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:var(--color-accent-600);border:1px solid var(--color-accent-900)"></span>Waiting</span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:var(--color-accent-700);border:1px solid var(--color-accent-900)"></span>In progress</span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:10px;height:10px;background:var(--color-accent-900);border:1px solid var(--color-text)"></span>Done</span>
             </span>
           </div>
-          <svg viewBox="0 0 600 240" preserveAspectRatio="none" style="width:100%;height:240px;display:block;border-left:1px solid var(--color-neutral-500);border-bottom:1px solid var(--color-neutral-500)">
+          <svg viewBox="0 0 600 240" preserveAspectRatio="none" role="img" aria-labelledby="cfd-chart-title" aria-describedby="cfd-chart-description" style="width:100%;height:240px;display:block;border-left:1px solid var(--color-neutral-500);border-bottom:1px solid var(--color-neutral-500)">
+            <title id="cfd-chart-title">Cumulative flow diagram</title>
+            <desc id="cfd-chart-description">{{ sim.cfdDescription }}</desc>
             <line x1="0" y1="60" x2="600" y2="60" style="stroke:var(--color-divider)"></line>
             <line x1="0" y1="120" x2="600" y2="120" style="stroke:var(--color-divider)"></line>
             <line x1="0" y1="180" x2="600" y2="180" style="stroke:var(--color-divider)"></line>
-            <path d="{{ sim.pWait }}" style="fill:var(--color-accent-200)"></path>
-            <path d="{{ sim.pProg }}" style="fill:var(--color-accent-400)"></path>
-            <path d="{{ sim.pDone }}" style="fill:var(--color-accent-700)"></path>
+            <path d="{{ sim.pWait }}" style="fill:var(--color-accent-600);stroke:var(--color-text);stroke-width:1"></path>
+            <path d="{{ sim.pProg }}" style="fill:var(--color-accent-700);stroke:var(--color-text);stroke-width:1"></path>
+            <path d="{{ sim.pDone }}" style="fill:var(--color-accent-900);stroke:var(--color-text);stroke-width:1"></path>
           </svg>
           <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-neutral-700);margin-top:4px"><span>Day 0</span><span>Max {{ sim.maxY }} items</span><span>Day {{ sim.maxX }}</span></div>
         </div>
@@ -228,9 +230,11 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
             <span style="font-family:var(--font-heading);font-weight:600;font-size:17px">Throughput · items finished per day</span>
             <span style="font-size:12px;color:var(--color-neutral-700)">{{ sim.tpPeriod }} · max {{ sim.tpMax }} / day</span>
           </div>
-          <svg viewBox="0 0 600 180" preserveAspectRatio="none" role="img" aria-label="Daily throughput bar chart" style="width:100%;height:180px;display:block;border-left:1px solid var(--color-neutral-500);border-bottom:1px solid var(--color-neutral-500)">
+          <svg viewBox="0 0 600 180" preserveAspectRatio="none" role="img" aria-labelledby="throughput-chart-title" aria-describedby="throughput-chart-description" style="width:100%;height:180px;display:block;border-left:1px solid var(--color-neutral-500);border-bottom:1px solid var(--color-neutral-500)">
+            <title id="throughput-chart-title">Daily throughput bar chart</title>
+            <desc id="throughput-chart-description">{{ sim.tpDescription }}</desc>
             <line x1="0" y1="90" x2="600" y2="90" style="stroke:var(--color-divider)"></line>
-            <path d="{{ sim.tpBars }}" style="fill:var(--color-accent-400)"></path>
+            <path d="{{ sim.tpBars }}" style="fill:var(--color-accent-700);stroke:var(--color-accent-900);stroke-width:0.5"></path>
           </svg>
           <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-neutral-700);margin-top:4px"><span>Day {{ sim.tpStart }}</span><span>Day {{ sim.tpEnd }}</span></div>
         </div>
@@ -239,16 +243,18 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
           <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;margin-bottom:8px">
             <span style="font-family:var(--font-heading);font-weight:600;font-size:17px">Cycle time · completion day × days</span>
             <span style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px">
-              <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:50%;background:var(--color-accent-400)"></span>Completed item</span>
+              <span style="display:flex;align-items:center;gap:5px"><span style="width:9px;height:9px;border-radius:50%;background:var(--color-accent-800)"></span>Completed item</span>
               <span style="color:var(--color-accent-700)">P50: {{ sim.p50 }}</span>
               <span style="color:var(--color-accent-800)">P85: {{ sim.p85 }}</span>
             </span>
           </div>
-          <svg viewBox="0 0 600 180" preserveAspectRatio="none" role="img" aria-label="Cycle time by completion day with 50th and 85th percentile lines" style="width:100%;height:180px;display:block;border-left:1px solid var(--color-neutral-500);border-bottom:1px solid var(--color-neutral-500)">
+          <svg viewBox="0 0 600 180" preserveAspectRatio="none" role="img" aria-labelledby="cycle-chart-title" aria-describedby="cycle-chart-description" style="width:100%;height:180px;display:block;border-left:1px solid var(--color-neutral-500);border-bottom:1px solid var(--color-neutral-500)">
+            <title id="cycle-chart-title">Cycle time scatterplot</title>
+            <desc id="cycle-chart-description">{{ sim.cycleDescription }}</desc>
             <line x1="0" y1="90" x2="600" y2="90" style="stroke:var(--color-divider)"></line>
             <line x1="0" y1="{{ sim.p50Y }}" x2="600" y2="{{ sim.p50Y }}" style="stroke:var(--color-accent-700);stroke-width:2;stroke-dasharray:6 4"></line>
             <line x1="0" y1="{{ sim.p85Y }}" x2="600" y2="{{ sim.p85Y }}" style="stroke:var(--color-accent-800);stroke-width:2;stroke-dasharray:2 4"></line>
-            <path d="{{ sim.cyclePoints }}" style="fill:var(--color-accent-400);stroke:var(--color-bg);stroke-width:1"></path>
+            <path d="{{ sim.cyclePoints }}" style="fill:var(--color-accent-800);stroke:var(--color-bg);stroke-width:1"></path>
           </svg>
           <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-neutral-700);margin-top:4px"><span>Day 0</span><span>Max {{ sim.cycleMax }} days</span><span>Day {{ sim.day }}</span></div>
         </div>
@@ -291,6 +297,16 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
         <h4 style="margin:0">Your team's data</h4>
         <span style="font-size:13px;color:var(--color-neutral-700)">Edit the start and finish days. Cycle time counts both days.</span>
       </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px">
+        <label class="btn btn-secondary" style="min-height:40px;display:inline-flex;align-items:center;cursor:pointer">
+          Import CSV
+          <input type="file" accept=".csv,text/csv" aria-label="Import CSV file" class="visually-hidden" onChange="{{ data.onCsv }}">
+        </label>
+        <button onClick="{{ data.onSample }}" class="btn btn-secondary" style="min-height:40px">Load MDS26 example</button>
+        <span style="font-size:13px;color:var(--color-neutral-700)">{{ data.sourceLabel }}</span>
+      </div>
+      <p style="font-size:13px;color:var(--color-neutral-700);margin:0 0 12px">CSV needs a work-item column (Key, ID or Summary), a cycle start date (Start date / Started) and a finish date (Finish date / Resolved). Jira's Created date is not a cycle start unless work starts when the issue is created. Open or undated items are skipped. Imported dates appear as days from the first start date. The MDS26 example uses actual PR open-to-merge dates, a review-time proxy rather than the full work-item cycle time.</p>
+      <div role="status" aria-live="polite" style="min-height:20px;margin-bottom:12px;font-size:14px;color:{{ data.importColor }}">{{ data.importMsg }}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:24px;align-items:start">
         <div style="overflow-x:auto">
           <table class="table">
@@ -313,7 +329,7 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
               <div style="background:var(--color-bg);padding:12px 14px"><div style="font-family:var(--font-heading);font-weight:600;font-size:30px">{{ k.v }}</div><div style="font-size:12px;color:var(--color-neutral-700)">{{ k.l }}</div></div>
             </sc-for>
           </div>
-          <div class="blueprint" style="padding:14px">
+          <div class="blueprint" role="img" aria-label="{{ data.barDescription }}" style="padding:14px">
             <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
             <div style="font-family:var(--font-heading);font-weight:600;font-size:16px;margin-bottom:8px">Cycle time per item (days)</div>
             <div style="display:flex;align-items:flex-end;gap:6px;height:120px;border-bottom:1px solid var(--color-neutral-500)">
@@ -673,7 +689,7 @@ class Component extends DCLogic {
     if(!answered) return {bg:'transparent',fg:C.ink,border:C.div,deco:'none'};
     if(isRight) return {bg:C.acc,fg:C.bg,border:C.acc,deco:'none'};
     if(isPicked) return {bg:C.n3,fg:C.ink,border:C.n3,deco:'line-through'};
-    return {bg:'transparent',fg:'var(--color-neutral-600)',border:C.div,deco:'none'};
+    return {bg:'transparent',fg:'var(--color-neutral-700)',border:C.div,deco:'none'};
   }
   renderVals(){
     const st=this.state; const chs=this.chapters(); const ci=Math.min(st.ch,chs.length-1); const cur=chs[ci];
@@ -722,16 +738,23 @@ class Component extends DCLogic {
       else if(m.wait>12) simMsg='The queue is growing faster than the team finishes. Try lowering the WIP limit or reducing arrivals.';
       else if(m.wip>8) simMsg='Lots of items in progress. Each one gets a thin slice of capacity, so everything finishes late.';
       else simMsg=st.sim.day<30?`Day ${st.sim.day}. Keep running to at least day 30.`:'Close. Check lead time and throughput against the targets.';}
+    const tpDescription=st.sim.day
+      ?`Daily throughput from day ${firstDay} to day ${st.sim.day}. ${dailyThroughput.map((count,i)=>`Day ${firstDay+i}: ${count} item${count===1?'':'s'}`).join('. ')}.`
+      :'No simulation days yet. Each bar will show the number of items finished on that day.';
+    const cycleDescription=cycles.length
+      ?`Scatterplot of completed items: horizontal axis is completion day and vertical axis is cycle time in days. P50 is ${cycleLabel(simP50)}; P85 is ${cycleLabel(simP85)}. ${finished.map(i=>`Day ${i.f}: ${cycleLabel(i.f-i.s+1)}`).join('. ')}.`
+      :'No items have finished yet, so the scatterplot has no points and P50/P85 are unavailable.';
+    const cfdDescription=`Stacked area chart over days 0 to ${st.sim.day}. The horizontal axis is day and the vertical axis is number of items. Waiting is work not yet started, in progress is started but unfinished work, and done is completed work. On day ${st.sim.day}: ${last.a} items have arrived, ${last.s} have started and ${last.f} are done.`;
     const num=(f)=>e=>{const v=parseFloat(e.target.value); this.setState(s=>({cfg:{...s.cfg,[f]:v}}));};
     const sim={day:st.sim.day,arrival:cfg.arrival,cap:cfg.cap,wipSlider:cfg.wip,wipLabel:cfg.wip>=15?'No limit':cfg.wip,
       onArrival:num('arrival'),onCap:num('cap'),onWip:num('wip'),runLabel:st.running?'Pause':'Run 30 days',onRun:()=>this.toggleRun(),onStep:()=>this.stepSim(),
       onReset:()=>{clearInterval(this.timer);this.setState({sim:this.simInit(),running:false});},
       stats:[{v:m.wip,l:'WIP now'},{v:m.wait,l:'Waiting'},{v:m.tp.toFixed(2),l:'Throughput / day'},{v:m.fin?m.cycle.toFixed(1):'–',l:'Avg cycle time (d)'},{v:m.fin?lead.toFixed(1):'–',l:'Avg lead time (d)'}],
-      pWait:area('a','s'),pProg:area('s','f'),pDone:area('f',null),maxX,maxY,
+      pWait:area('a','s'),pProg:area('s','f'),pDone:area('f',null),maxX,maxY,cfdDescription,
       tpBars,tpMax,tpPeriod:st.sim.day>=30?'Last 30 days':(st.sim.day?`Days 1–${st.sim.day}`:'No days simulated'),
-      tpStart:st.sim.day?firstDay:0,tpEnd:st.sim.day,
+      tpStart:st.sim.day?firstDay:0,tpEnd:st.sim.day,tpDescription,
       cyclePoints,cycleMax:cycleYMax,p50:simP50?cycleLabel(simP50):'–',p85:simP85?cycleLabel(simP85):'–',
-      p50Y:cycles.length?cycleY(simP50):190,p85Y:cycles.length?cycleY(simP85):190,
+      p50Y:cycles.length?cycleY(simP50):190,p85Y:cycles.length?cycleY(simP85):190,cycleDescription,
       msg:simMsg,msgBg:simOk?C.accL:'transparent'};
     // law
     const LO=['3 weeks','75 weeks','0.33 weeks','10 weeks'];
@@ -745,8 +768,12 @@ class Component extends DCLogic {
     const cts=rows.map(r=>r.ct); const sorted=[...cts].sort((a,b)=>a-b); const p85=sorted[Math.max(0,Math.ceil(0.85*sorted.length)-1)]||0;
     const span=Math.max(1,Math.max(...rows.map(r=>r.f))-Math.min(...rows.map(r=>r.s))+1); const avgCt=cts.reduce((a,b)=>a+b,0)/(cts.length||1);
     const maxCt=Math.max(1,...cts);
-    const data={rows,p85,stats:[{v:avgCt.toFixed(1),l:'Avg cycle time (days)'},{v:p85,l:'85th percentile (days)'},{v:(rows.length/span).toFixed(2),l:'Throughput (items/day)'},{v:span,l:'Period (days)'}],
-      bars:rows.map(r=>({id:r.id,v:r.ct,h:Math.round(r.ct/maxCt*92)+'%',color:r.ct>p85?'var(--color-accent-800)':'var(--color-accent-400)'}))};
+    const data={rows,p85,sourceLabel:st.rowsLabel||'Imported or sample data',importMsg:st.importMsg||'',importColor:st.importMsg&&st.importMsg.indexOf('Imported ')!==0?'var(--color-accent-700)':'var(--color-neutral-700)',
+      onCsv:e=>{const file=e.target.files&&e.target.files[0]; if(!file) return; file.text().then(text=>this.importCSV(text,file.name)).catch(()=>this.setState({importMsg:'Could not read the selected CSV file.'})); e.target.value='';},
+      onSample:()=>this.importCSV(MDS26_CSV,'MDS26 example'),
+      stats:[{v:avgCt.toFixed(1),l:'Avg cycle time (days)'},{v:p85,l:'85th percentile (days)'},{v:(rows.length/span).toFixed(2),l:'Throughput (items/day)'},{v:span,l:'Period (days)'}],
+      barDescription:`Cycle time per item, in days. The 85th percentile is ${p85} days. ${rows.map(r=>`${r.id}: ${r.ct} days`).join('; ')}.`,
+      bars:rows.map(r=>({id:r.id,v:r.ct,h:Math.round(r.ct/maxCt*92)+'%',color:r.ct>p85?'var(--color-accent-900)':'var(--color-accent-700)'}))};
     // sort
     const lbl=['Kanban','Scrum','Both']; let sc=0, ans=0;
     const items=SORT.map((s,i)=>{const p=st.sortAns[i]; const answered=p!=null; if(answered){ans++; if(p===s.a) sc++;}
