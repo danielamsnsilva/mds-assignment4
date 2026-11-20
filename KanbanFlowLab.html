@@ -252,6 +252,16 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
         <h4 style="margin:0">Your team's data</h4>
         <span style="font-size:13px;color:var(--color-neutral-700)">Edit the start and finish days. Cycle time counts both days.</span>
       </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:12px">
+        <label class="btn btn-secondary" style="min-height:40px;display:inline-flex;align-items:center;cursor:pointer">
+          Import CSV
+          <input type="file" accept=".csv,text/csv" onChange="{{ data.onCsv }}" style="display:none">
+        </label>
+        <button onClick="{{ data.onSample }}" class="btn btn-secondary" style="min-height:40px">Load MDS26 example</button>
+        <span style="font-size:13px;color:var(--color-neutral-700)">{{ data.sourceLabel }}</span>
+      </div>
+      <p style="font-size:13px;color:var(--color-neutral-700);margin:0 0 12px">CSV needs a work-item column (Key, ID or Summary), a cycle start date (Start date / Started) and a finish date (Finish date / Resolved). Jira's Created date is not a cycle start unless work starts when the issue is created. Open or undated items are skipped. Imported dates appear as days from the first start date. The MDS26 example uses actual PR open-to-merge dates, a review-time proxy rather than the full work-item cycle time.</p>
+      <div role="status" aria-live="polite" style="min-height:20px;margin-bottom:12px;font-size:14px;color:{{ data.importColor }}">{{ data.importMsg }}</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:24px;align-items:start">
         <div style="overflow-x:auto">
           <table class="table">
@@ -473,19 +483,127 @@ const BADGES=[
  {k:'b:quiz',name:'Quiz Ace',how:'5+ correct in the final quiz'}];
 const RANKS=['Card Mover','Flow Apprentice','WIP Wrangler','Flow Engineer','Kanban Coach'];
 const ROWS=()=>[{id:'A',s:1,f:3},{id:'B',s:1,f:6},{id:'C',s:2,f:4},{id:'D',s:3,f:11},{id:'E',s:4,f:6},{id:'F',s:5,f:7},{id:'G',s:6,f:9},{id:'H',s:8,f:10}];
+const MDS26_CSV=[
+  'Key,Summary,Start date,Finish date',
+  'PR-1,"H9 daily throughput and cycle-time charts",2026-11-14,2026-11-16',
+  'PR-2,"H5 chapter checks and H8 glossary",2026-11-16,2026-11-16'
+].join('\n');
 const KEY='flowlab-v1';
 const C={ink:'var(--color-text)',bg:'var(--color-bg)',div:'var(--color-divider)',acc:'var(--color-accent-700)',accL:'var(--color-accent-100)',n3:'var(--color-neutral-300)'};
+
+function csvHeaderName(value){
+  return String(value||'').trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+}
+function parseCsvTable(text){
+  const source=String(text||'').replace(/^\uFEFF/,'');
+  const firstLine=source.split(/\r?\n/,1)[0]||'';
+  let delimiter=',', best=-1;
+  [',',';','\t'].forEach(candidate=>{
+    let count=0, quoted=false;
+    for(let i=0;i<firstLine.length;i++){
+      if(firstLine[i]==='"'&&firstLine[i+1]==='"'){i++;continue;}
+      if(firstLine[i]==='"') quoted=!quoted;
+      else if(firstLine[i]===candidate&&!quoted) count++;
+    }
+    if(count>best){best=count;delimiter=candidate;}
+  });
+  const rows=[]; let row=[], cell='', quoted=false;
+  for(let i=0;i<source.length;i++){
+    const ch=source[i];
+    if(quoted){
+      if(ch==='"'&&source[i+1]==='"'){cell+='"';i++;}
+      else if(ch==='"') quoted=false;
+      else cell+=ch;
+    }else if(ch==='"'&&cell.length===0) quoted=true;
+    else if(ch===delimiter){row.push(cell);cell='';}
+    else if(ch==='\n'||ch==='\r'){
+      if(ch==='\r'&&source[i+1]==='\n') i++;
+      row.push(cell); rows.push(row); row=[]; cell='';
+    }else cell+=ch;
+  }
+  if(quoted) throw new Error('CSV has an unclosed quoted field.');
+  if(cell.length||row.length){row.push(cell);rows.push(row);}
+  return rows.filter(r=>r.some(v=>String(v).trim()!==''));
+}
+function csvDateValue(value){
+  const raw=String(value||'').trim();
+  if(!raw) return null;
+  if(/^\d+$/.test(raw)){
+    const day=Number(raw);
+    return Number.isSafeInteger(day)?{kind:'number',day}:null;
+  }
+  const iso=raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:$|[T\s])/);
+  if(iso){
+    const year=Number(iso[1]),month=Number(iso[2]),day=Number(iso[3]),date=new Date(Date.UTC(year,month-1,day));
+    if(date.getUTCFullYear()!==year||date.getUTCMonth()!==month-1||date.getUTCDate()!==day) return null;
+    return {kind:'date',day:Math.floor(date.getTime()/86400000)};
+  }
+  const numericDate=raw.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(numericDate){
+    const day=Number(numericDate[1]),month=Number(numericDate[2]),year=Number(numericDate[3]),date=new Date(Date.UTC(year,month-1,day));
+    if(date.getUTCFullYear()!==year||date.getUTCMonth()!==month-1||date.getUTCDate()!==day) return null;
+    return {kind:'date',day:Math.floor(date.getTime()/86400000)};
+  }
+  const jiraDate=raw.match(/^(\d{1,2})[\s/-]+([A-Za-z]{3})[\s/-]+(\d{2,4})/);
+  if(jiraDate){
+    const months=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
+    const month=months.indexOf(jiraDate[2].toLowerCase()),day=Number(jiraDate[1]);
+    let year=Number(jiraDate[3]); if(year<100) year+=year<50?2000:1900;
+    if(month<0) return null;
+    const date=new Date(Date.UTC(year,month,day));
+    if(date.getUTCFullYear()!==year||date.getUTCMonth()!==month||date.getUTCDate()!==day) return null;
+    return {kind:'date',day:Math.floor(date.getTime()/86400000)};
+  }
+  const parsed=Date.parse(raw);
+  return Number.isFinite(parsed)?{kind:'date',day:Math.floor(parsed/86400000)}:null;
+}
+function importCsvRows(text){
+  const table=parseCsvTable(text);
+  if(table.length<2) throw new Error('CSV must include a header and at least one work item.');
+  const headers=table[0].map(csvHeaderName);
+  const findHeader=names=>headers.findIndex(h=>names.indexOf(h)!==-1);
+  const idIndex=findHeader(['key','issue key','id','issue id','work item','work item id','item','summary','title','task','tarefa','chave']);
+  const startIndex=findHeader(['start','start date','started','started date','date started','cycle start','cycle start date','in progress date','data inicio','data de inicio','inicio']);
+  const finishIndex=findHeader(['end','end date','finish','finish date','finished','finished date','date finished','cycle end','cycle end date','resolved','resolution date','completed','completion date','data fim','data de conclusao','fim']);
+  if(idIndex<0) throw new Error('Could not find a work-item column. Add a header such as "Key", "ID" or "Summary".');
+  if(startIndex<0||finishIndex<0) throw new Error('Could not find start and finish date columns. Add headers such as "Start date" and "Finish date".');
+  const parsed=[]; let skipped=0,kind=null;
+  for(let i=1;i<table.length;i++){
+    const record=table[i];
+    const startText=record[startIndex]||'',finishText=record[finishIndex]||'';
+    if(!String(startText).trim()||!String(finishText).trim()){skipped++;continue;}
+    const start=csvDateValue(startText),finish=csvDateValue(finishText);
+    if(!start||!finish) throw new Error(`Invalid start or finish date on CSV row ${i+1}.`);
+    if(start.kind!==finish.kind||(kind&&kind!==start.kind)) throw new Error('Use either calendar dates or numeric day values consistently in the CSV.');
+    kind=start.kind;
+    if(start.day<0||finish.day<start.day) throw new Error(`Finish date must be on or after the start date on CSV row ${i+1}.`);
+    const id=idIndex<0?'Item '+(i):String(record[idIndex]||'').trim()||'Item '+i;
+    parsed.push({id,start:start.day,finish:finish.day});
+  }
+  if(!parsed.length) throw new Error('No work items with both start and finish dates were found.');
+  const origin=kind==='date'?Math.min(...parsed.map(r=>r.start)):0;
+  const rows=parsed.map(r=>({id:r.id,s:r.start-origin+1,f:r.finish-origin+1}));
+  const originLabel=kind==='date'?new Date(origin*86400000).toISOString().slice(0,10):'day values';
+  return {rows,skipped,sourceLabel:`${parsed.length} items · days from ${originLabel}`};
+}
 
 class Component extends DCLogic {
   state = this.load();
   load(){
-    let s={path:null,ch:0,xp:{},board:CARDS(),moves:0,hits:0,msg:'Tip: In progress is full (3/3). Finish something before starting more.',revealed:{},sortAns:{},lawPick:null,rows:ROWS(),law:{wip:12,tp:3},quiz:{i:0,pick:null,score:0,done:false},chatOpen:false,toast:null,sim:this.simInit(),cfg:{arrival:2,cap:5,wip:4},running:false};
+    let s={path:null,ch:0,xp:{},board:CARDS(),moves:0,hits:0,msg:'Tip: In progress is full (3/3). Finish something before starting more.',revealed:{},sortAns:{},lawPick:null,rows:ROWS(),rowsLabel:'Illustrative sample data',importMsg:'',law:{wip:12,tp:3},quiz:{i:0,pick:null,score:0,done:false},chatOpen:false,toast:null,sim:this.simInit(),cfg:{arrival:2,cap:5,wip:4},running:false};
     try{const d=JSON.parse(localStorage.getItem(KEY)||'null'); if(d) s={...s,...d};}catch(e){}
     return s;
   }
   componentDidUpdate(){
-    const {path,ch,xp,board,moves,hits,revealed,sortAns,lawPick,rows,law,quiz,cfg}=this.state;
-    try{localStorage.setItem(KEY,JSON.stringify({path,ch,xp,board,moves,hits,revealed,sortAns,lawPick,rows,law,quiz,cfg}));}catch(e){}
+    const {path,ch,xp,board,moves,hits,revealed,sortAns,lawPick,rows,rowsLabel,law,quiz,cfg}=this.state;
+    try{localStorage.setItem(KEY,JSON.stringify({path,ch,xp,board,moves,hits,revealed,sortAns,lawPick,rows,rowsLabel,law,quiz,cfg}));}catch(e){}
+  }
+  importCSV(text,label){
+    try{
+      const imported=importCsvRows(text);
+      this.setState({rows:imported.rows,rowsLabel:label==='MDS26 example'?'MDS26 GitHub PRs · opened → merged (calendar days)':`${label} · ${imported.sourceLabel}`,
+        importMsg:`Imported ${imported.rows.length} work items${imported.skipped?`; skipped ${imported.skipped} without both dates`:''}.`});
+    }catch(error){this.setState({importMsg:error.message||'Could not import this CSV.'});}
   }
   componentWillUnmount(){clearInterval(this.timer);clearTimeout(this.tt);}
   chapters(){return this.state.path==='advanced'?ADV:BEG;}
@@ -590,7 +708,10 @@ class Component extends DCLogic {
     const cts=rows.map(r=>r.ct); const sorted=[...cts].sort((a,b)=>a-b); const p85=sorted[Math.max(0,Math.ceil(0.85*sorted.length)-1)]||0;
     const span=Math.max(1,Math.max(...rows.map(r=>r.f))-Math.min(...rows.map(r=>r.s))+1); const avgCt=cts.reduce((a,b)=>a+b,0)/(cts.length||1);
     const maxCt=Math.max(1,...cts);
-    const data={rows,p85,stats:[{v:avgCt.toFixed(1),l:'Avg cycle time (days)'},{v:p85,l:'85th percentile (days)'},{v:(rows.length/span).toFixed(2),l:'Throughput (items/day)'},{v:span,l:'Period (days)'}],
+    const data={rows,p85,sourceLabel:st.rowsLabel||'Imported or sample data',importMsg:st.importMsg||'',importColor:st.importMsg&&st.importMsg.indexOf('Imported ')!==0?'var(--color-accent-700)':'var(--color-neutral-700)',
+      onCsv:e=>{const file=e.target.files&&e.target.files[0]; if(!file) return; file.text().then(text=>this.importCSV(text,file.name)).catch(()=>this.setState({importMsg:'Could not read the selected CSV file.'})); e.target.value='';},
+      onSample:()=>this.importCSV(MDS26_CSV,'MDS26 example'),
+      stats:[{v:avgCt.toFixed(1),l:'Avg cycle time (days)'},{v:p85,l:'85th percentile (days)'},{v:(rows.length/span).toFixed(2),l:'Throughput (items/day)'},{v:span,l:'Period (days)'}],
       bars:rows.map(r=>({id:r.id,v:r.ct,h:Math.round(r.ct/maxCt*92)+'%',color:r.ct>p85?'var(--color-accent-800)':'var(--color-accent-400)'}))};
     // sort
     const lbl=['Kanban','Scrum','Both']; let sc=0, ans=0;
@@ -624,7 +745,7 @@ class Component extends DCLogic {
       sim,law,data,sort:{items,score:sc,answered:ans},quiz,
       showNav:is.chapter&&!is.finish,nextLabel:isLast?'Finish · +25 XP':'Complete chapter · +25 XP',
       prev:()=>this.go(ci-1),next:()=>{this.award('ch:'+cur,25); this.go(ci+1);},
-      restart:()=>{clearInterval(this.timer); this.setState({path:null,ch:0,xp:{},board:CARDS(),moves:0,hits:0,revealed:{},sortAns:{},lawPick:null,rows:ROWS(),quiz:{i:0,pick:null,score:0,done:false},sim:this.simInit(),running:false,msg:'Tip: In progress is full (3/3). Finish something before starting more.'});},
+      restart:()=>{clearInterval(this.timer); this.setState({path:null,ch:0,xp:{},board:CARDS(),moves:0,hits:0,revealed:{},sortAns:{},lawPick:null,rows:ROWS(),rowsLabel:'Illustrative sample data',importMsg:'',quiz:{i:0,pick:null,score:0,done:false},sim:this.simInit(),running:false,msg:'Tip: In progress is full (3/3). Finish something before starting more.'});},
       toast:st.toast,chatOpen:st.chatOpen,toggleChat:()=>this.setState(s=>({chatOpen:!s.chatOpen})),closeChat:()=>this.setState({chatOpen:false}),openChat:()=>this.setState({chatOpen:true})};
   }
 }
