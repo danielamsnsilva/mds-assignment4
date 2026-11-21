@@ -148,6 +148,7 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
       </div>
     </div>
     <div style="min-height:44px;padding:10px 14px;border:1px solid var(--color-divider);background:{{ board.msgBg }};font-size:14px">{{ board.msg }}</div>
+    <p style="margin:0;font-size:14px;max-width:80ch;color:var(--color-neutral-800)"><strong><button type="button" class="gl" data-def="{{ gl.age.d }}" onClick="{{ gl.age.open }}">Work item age</button>.</strong> Today is day {{ ageBoard.today }} on this board. Cards in progress show how many days ago they started. {{ ageBoard.oldCount }} of {{ ageBoard.wipCount }} are older than the team's 85th percentile cycle time ({{ ageBoard.p85 }} days, from the Metrics chapter) and are highlighted: finish or unblock those first.</p>
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:14px">
       <sc-for list="{{ board.cols }}" as="col" hint-placeholder-count="4">
         <div onDragOver="{{ col.onDragOver }}" onDrop="{{ col.onDrop }}" style="border:1px solid var(--color-divider);min-height:300px;display:flex;flex-direction:column">
@@ -161,6 +162,9 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
                 <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
                 <div style="display:flex;justify-content:space-between;gap:8px;font-size:11px;color:var(--color-neutral-700)"><span>#{{ card.id }}</span><span>{{ card.type }}</span></div>
                 <div style="font-size:14px;font-weight:500;line-height:1.3">{{ card.t }}</div>
+                <sc-if value="{{ card.hasAge }}" hint-placeholder-val="{{ false }}">
+                  <div style="align-self:flex-start;padding:2px 8px;font-size:12px;font-weight:500;border:1px solid {{ card.ageBorder }};background:{{ card.ageBg }};color:{{ card.ageFg }}">{{ card.ageLabel }}</div>
+                </sc-if>
                 <sc-if value="{{ card.blocked }}" hint-placeholder-val="{{ false }}">
                   <button onClick="{{ card.onUnblock }}" class="btn btn-secondary" style="font-size:13px;background:var(--color-accent-100)">Blocked · swarm to unblock</button>
                 </sc-if>
@@ -256,6 +260,21 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
       </div>
     </div>
     <p style="font-size:14px;max-width:72ch;color:var(--color-neutral-800);margin:0"><strong>Reading a CFD.</strong> The vertical distance across the "in progress" band is WIP. The horizontal distance is approximate cycle time. The slope of the Done band is throughput. A band that keeps widening means work is entering faster than it leaves.</p>
+    <div class="blueprint" style="padding:16px;display:flex;flex-direction:column;gap:10px">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px">
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:17px"><button type="button" class="gl" data-def="{{ gl.age.d }}" onClick="{{ gl.age.open }}">Work item age</button> · items in progress on day {{ simAge.day }}</span>
+        <span style="font-size:12px;color:var(--color-neutral-700)">{{ simAge.summary }}</span>
+      </div>
+      <sc-if value="{{ simAge.has }}" hint-placeholder-val="{{ false }}">
+        <ul aria-label="Items in progress, oldest first" style="list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{ simAge.items }}" as="a" hint-placeholder-count="4">
+            <li style="padding:4px 10px;font-size:13px;border:1px solid {{ a.border }};background:{{ a.bg }};color:{{ a.fg }}">{{ a.label }}</li>
+          </sc-for>
+        </ul>
+      </sc-if>
+      <p style="margin:0;font-size:13px;color:var(--color-neutral-800)">{{ simAge.tip }}</p>
+    </div>
   </section>
 </sc-if>
 
@@ -417,6 +436,35 @@ input[type=range]{accent-color:var(--color-accent);width:100%}
           </div>
         </sc-for>
       </div>
+    </div>
+    <div>
+      <h4>What to review</h4>
+      <p style="margin:4px 0 12px;font-size:14px;color:var(--color-neutral-800)">{{ review.summary }}</p>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <sc-for list="{{ review.groups }}" as="g" hint-placeholder-count="2">
+          <div class="blueprint" style="padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+            <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px">
+              <span style="font-family:var(--font-heading);font-weight:600;font-size:19px">{{ g.title }} · {{ g.count }}</span>
+              <button type="button" onClick="{{ g.go }}" class="btn btn-secondary" style="min-height:40px">{{ g.goLabel }}</button>
+            </div>
+            <ul style="margin:0;padding-left:18px;font-size:14px;display:flex;flex-direction:column;gap:4px">
+              <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="2">
+                <li><span style="font-size:12px;color:var(--color-neutral-700)">{{ it.src }} · </span>{{ it.text }}</li>
+              </sc-for>
+            </ul>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <div class="blueprint" style="padding:20px;display:flex;flex-direction:column;gap:12px">
+      <i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>
+      <h4 style="margin:0">Your certificate</h4>
+      <p style="margin:0;font-size:14px;color:var(--color-neutral-800)">Download an image with your XP, level and badges to share what you learned.</p>
+      <label style="display:flex;flex-direction:column;gap:4px;font-size:13px;max-width:360px">Name on the certificate
+        <input class="input" type="text" maxlength="40" placeholder="Your name" value="{{ cert.name }}" onChange="{{ cert.onName }}" style="min-height:40px">
+      </label>
+      <div><button type="button" onClick="{{ cert.download }}" disabled="{{ cert.noName }}" class="btn btn-primary blueprint" style="min-height:44px;padding:0 20px"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Download certificate (PNG)</button></div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap">
       <button onClick="{{ openChat }}" class="btn btn-primary blueprint" style="min-height:44px;padding:0 20px"><i class="corner tl"></i><i class="corner tr"></i><i class="corner bl"></i><i class="corner br"></i>Ask FlowBot a question</button>
@@ -590,6 +638,11 @@ const GLOSSARY=[
  {k:'bottleneck',term:'Bottleneck',def:'The workflow state with the least capacity. Work queues in front of it, and it limits the throughput of the whole system.'},
  {k:'p85',term:'85th percentile',def:'The value below which 85% of observations fall. "85th percentile cycle time is 8 days" means 85% of items finished in 8 days or less.'},
  {k:'little',term:'Little\'s Law',def:'Average cycle time = average WIP ÷ average throughput. It holds for averages in a stable system, where items arrive about as fast as they leave.'}];
+// H10: work item age on the board (board "today" and start day of the cards already in progress)
+const BOARD_TODAY=10;
+const BOARD_START={101:2,102:6,103:8,104:4};
+// H14: chapter to review for each final-quiz question (same order as QB / QA)
+const QTOPIC={beginner:['basics','board','basics','basics','flow','compare'],advanced:['metrics','flow','metrics','flow','board','metrics']};
 const BADGES=[
  {k:'b:board',name:'Stop Starting',how:'Clear the Kanban board'},
  {k:'b:flow',name:'Flow Master',how:'Beat the simulator challenge'},
@@ -634,12 +687,49 @@ class Component extends DCLogic {
     if(card.blocked&&t>card.col) return this.setState({msg:`#${id} is blocked. Swarm on it before it can move.`});
     const lim=COLS[t].limit, cnt=b.filter(c=>c.col===t).length;
     if(lim&&cnt>=lim) return this.setState(s=>({hits:s.hits+1,msg:`WIP limit reached in ${COLS[t].n} (${cnt}/${lim}). Stop starting, start finishing: move something further right first.`}));
-    const nb=b.map(c=>c.id===id?{...c,col:t}:c);
+    const nb=b.map(c=>c.id===id?{...c,col:t,st:t===0?null:(card.col===0?BOARD_TODAY:this.cardStart(c))}:c);
     const done=nb.filter(c=>c.col===3).length;
     this.setState(s=>({board:nb,moves:s.moves+1,msg:done===8?`Board cleared in ${s.moves+1} moves.`:`#${id} → ${COLS[t].n}.`}));
     if(done===8) this.award('b:board',100,'Badge: Stop Starting · +100 XP');
   }
   unblock(id){this.setState(s=>({board:s.board.map(c=>c.id===id?{...c,blocked:false}:c),msg:`Team swarmed on #${id}. It can move again.`}));}
+  // H10 work item age
+  cardStart(c){return c.st!==undefined?c.st:(BOARD_START[c.id]??null);}
+  cardAge(c,cix,p85){
+    if(cix!==1&&cix!==2) return {hasAge:false};
+    const s=this.cardStart(c); const age=s==null?1:BOARD_TODAY-s+1; const old=p85>0&&age>p85;
+    return {hasAge:true,isOld:old,ageLabel:`Age ${age} ${age===1?'day':'days'}${old?' · older than P85':''}`,
+      ageBg:old?'var(--color-accent-900)':'transparent',ageFg:old?C.bg:C.ink,ageBorder:old?'var(--color-accent-900)':C.div};
+  }
+  teamP85(){
+    const cts=(this.state.rows||[]).map(r=>r.f-r.s+1).filter(v=>Number.isFinite(v)&&v>0).sort((a,b)=>a-b);
+    return cts.length?cts[Math.max(0,Math.ceil(0.85*cts.length)-1)]:0;
+  }
+  // H14 certificate (PNG drawn on a canvas)
+  async downloadCert(o){
+    try{await document.fonts.ready;}catch(e){}
+    const cs=getComputedStyle(document.documentElement); const v=(n,f)=>(cs.getPropertyValue(n)||'').trim()||f;
+    const bg=v('--color-bg','#f2f2f3'), ink=v('--color-text','#17243b'), acc=v('--color-accent','#4a6d8c'), dark=v('--color-accent-900','#1d2d3d'), muted=v('--color-neutral-700','#555');
+    const fh=v('--font-heading','sans-serif'), fb=v('--font-body','sans-serif');
+    const W=1600,H=1000; const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const x=cv.getContext('2d');
+    x.fillStyle=bg; x.fillRect(0,0,W,H);
+    x.strokeStyle=acc; x.lineWidth=2; x.strokeRect(60,60,W-120,H-120);
+    [[60,60],[W-60,60],[60,H-60],[W-60,H-60]].forEach(([px,py])=>{x.beginPath();x.moveTo(px-18,py);x.lineTo(px+18,py);x.moveTo(px,py-18);x.lineTo(px,py+18);x.stroke();});
+    const text=(t,font,color,y)=>{x.font=font; x.fillStyle=color; x.textAlign='center'; x.fillText(t,W/2,y);};
+    text('FLOW/LAB',`600 40px ${fh}`,ink,170);
+    text('CERTIFICATE OF COMPLETION',`500 26px ${fb}`,acc,225);
+    let size=96; x.font=`600 ${size}px ${fh}`; while(size>40&&x.measureText(o.name).width>W-260){size-=4; x.font=`600 ${size}px ${fh}`;}
+    text(o.name,`600 ${size}px ${fh}`,ink,385);
+    text('completed the interactive field manual on Kanban and flow metrics',`400 30px ${fb}`,muted,450);
+    [[`${o.xp} XP`,'experience'],[`Level ${o.level}`,'level'],[o.rank,'rank']].forEach(([val,lab],i)=>{
+      const cx=W/2+(i-1)*420; x.textAlign='center'; x.font=`600 60px ${fh}`; x.fillStyle=dark; x.fillText(val,cx,610);
+      x.font=`400 22px ${fb}`; x.fillStyle=muted; x.fillText(lab,cx,650);});
+    text(o.badges.length?`Badges: ${o.badges.join(' · ')}`:'No badges earned yet',`500 28px ${fb}`,ink,760);
+    text(`${o.path} · ${new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'})}`,`400 22px ${fb}`,muted,880);
+    cv.toBlob(blob=>{if(!blob) return; const u=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=u;
+      a.download='flowlab-certificate-'+(o.name.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'learner')+'.png';
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),2000);},'image/png');
+  }
   // sim
   simInit(){return {day:0,items:[],hist:[{a:0,s:0,f:0}],seed:12345};}
   rnd(sim){sim.seed=(sim.seed*1103515245+12345)%2147483648; return sim.seed/2147483648;}
@@ -682,11 +772,12 @@ class Component extends DCLogic {
     const steps=chs.map((k,i)=>({num:String(i).padStart(2,'0'),title:SHORT[k],onClick:()=>{if(i===0||st.path) this.go(i);},
       line:i===ci?'var(--color-accent)':'transparent',color:i===ci?C.ink:(st.xp['ch:'+k]!=null?C.acc:'var(--color-neutral-700)'),mark:st.xp['ch:'+k]!=null?'✓':'',current:i===ci?'step':false}));
     // board
+    const teamP85=this.teamP85();
     const b=st.board;
     const cols=COLS.map((c,cix)=>{const cards=b.filter(k=>k.col===cix); const full=c.limit&&cards.length>=c.limit;
       return {name:c.n,limitLabel:c.limit?`WIP ${cards.length}/${c.limit}`:`${cards.length}`,headBg:full?'var(--color-accent-200)':'transparent',
         onDragOver:e=>e.preventDefault(),onDrop:e=>{e.preventDefault(); this.moveTo(this.drag,cix);},
-        cards:cards.map(k=>({...k,blocked:!!k.blocked,noLeft:cix===0,noRight:cix===3,onLeft:()=>this.move(k.id,-1),onRight:()=>this.move(k.id,1),
+        cards:cards.map(k=>({...k,...this.cardAge(k,cix,teamP85),blocked:!!k.blocked,noLeft:cix===0,noRight:cix===3,onLeft:()=>this.move(k.id,-1),onRight:()=>this.move(k.id,1),
           onUnblock:()=>this.unblock(k.id),onDragStart:e=>{this.drag=k.id; try{e.dataTransfer.setData('text/plain',String(k.id));}catch(_){}}}))};});
     const bdone=b.filter(c=>c.col===3).length;
     // sim
@@ -763,6 +854,36 @@ class Component extends DCLogic {
       onRetry:()=>this.setState({quiz:{i:0,pick:null,score:0,done:false}}),
       verdict:qz.score>=5?'Quiz Ace earned. You can explain flow metrics to your team.':'Review the Metrics and Simulator chapters, then try again. 5 correct earns the badge.'};
     const badges=BADGES.map(x=>{const got=st.xp[x.k]!=null; return {...x,state:got?'Earned':'Locked',op:got?1:0.55,bg:got?'var(--color-accent-900)':'transparent',fg:got?C.bg:C.ink};});
+    // H10 work item age: board summary and simulator items in progress
+    const boardAges=b.map(k=>this.cardAge(k,k.col,teamP85)).filter(a=>a.hasAge);
+    const ageBoard={today:BOARD_TODAY,p85:teamP85,wipCount:boardAges.length,oldCount:boardAges.filter(a=>a.isOld).length};
+    const ageP=cycles.length>0;
+    const inProg=st.sim.items.map((it,idx)=>({id:idx+1,s:it.s,f:it.f})).filter(i=>i.s!=null&&i.f==null)
+      .map(i=>({id:i.id,age:st.sim.day-i.s+1})).sort((a1,a2)=>a2.age-a1.age);
+    const oldSim=ageP?inProg.filter(i=>i.age>simP85).length:0;
+    const simAge={day:st.sim.day,has:inProg.length>0,
+      items:inProg.slice(0,40).map(i=>{const old=ageP&&i.age>simP85; return {label:`#${i.id} · ${i.age} ${i.age===1?'day':'days'}`,
+        bg:old?'var(--color-accent-900)':'transparent',fg:old?C.bg:C.ink,border:old?'var(--color-accent-900)':C.div};}),
+      summary:!st.sim.day?'Run the simulation to see ages':(ageP?`P85 cycle time ${simP85} d · ${oldSim} of ${inProg.length} older`:'P85 appears after the first item finishes')+(inProg.length>40?' · showing the 40 oldest':''),
+      tip:oldSim>0?'Highlighted items have been in progress longer than 85% of finished items took in total. Swarm on them before starting new work.'
+        :'Age grows every day an item stays in progress. An item older than the 85th percentile cycle time is an early warning that it is at risk.'};
+    // H14 what to review: wrong answers grouped by chapter
+    const rv=[]; let answeredN=0;
+    Object.keys(QC).forEach(k=>QC[k].forEach((x2,i)=>{const p=st.qc[k+':'+i]; if(p==null) return; answeredN++; if(p!==x2.a) rv.push({ch:k,src:'Quick check',text:x2.q});}));
+    SORT.forEach((s2,i)=>{const p=st.sortAns[i]; if(p==null) return; answeredN++; if(p!==s2.a) rv.push({ch:'compare',src:'Kanban vs Scrum',text:s2.text});});
+    if(st.lawPick!=null){answeredN++; if(st.lawPick!==0) rv.push({ch:'metrics',src:'Little\'s Law challenge',text:'A team has 15 items in progress and finishes 5 items per week. What is its lead time?'});}
+    if(st.path){const nQ=qz.done?QS.length:qz.i+(qz.pick!=null?1:0);
+      for(let i=0;i<nQ;i++){answeredN++; if(st.xp['q:'+st.path+':'+i]==null) rv.push({ch:(QTOPIC[st.path]||[])[i]||'metrics',src:'Final quiz',text:QS[i].q});}}
+    const rvGroups=[...new Set(rv.map(r=>r.ch))].map(k=>{const idx=chs.indexOf(k); const list=rv.filter(r=>r.ch===k);
+      return {order:idx<0?99:idx,title:TITLES[k]||k,count:`${list.length} ${list.length===1?'question':'questions'}`,
+        goLabel:idx<0?'Open glossary':`Review ${SHORT[k]} →`,go:idx<0?()=>this.setState({glOpen:true,glTerm:null}):()=>this.go(idx),
+        items:list.map(r=>({src:r.src,text:r.text}))};}).sort((g1,g2)=>g1.order-g2.order);
+    const review={groups:rvGroups,summary:!answeredN?'Answer the quick checks, the Kanban vs Scrum statements and the final quiz. The questions you miss will be listed here, with a link back to the chapter.'
+      :(rv.length?`${rv.length} ${rv.length===1?'question':'questions'} to review, grouped by chapter.`:'Nothing to review: every answer you gave was correct.')};
+    const certName=(st.certName||'').trim();
+    const cert={name:st.certName||'',noName:!certName,onName:e=>this.setState({certName:String(e.target.value).slice(0,40)}),
+      download:()=>{if(!certName) return; this.downloadCert({name:certName,xp,level,rank:RANKS[Math.min(level-1,RANKS.length-1)],
+        badges:BADGES.filter(x3=>st.xp[x3.k]!=null).map(x3=>x3.name),path:st.path==='advanced'?'Path B · Advanced':'Path A · Beginner'});}};
     // H5 quick check
     const QQ=QC[cur]||[]; let qcScore=0;
     const qcItems=QQ.map((x,i)=>{const id=cur+':'+i; const p=st.qc[id]; const answered=p!=null; if(answered&&p===x.a) qcScore++;
@@ -786,6 +907,7 @@ class Component extends DCLogic {
       board:{cols,done:bdone,moves:st.moves,hits:st.hits,msg:st.msg,msgBg:bdone===8?C.accL:'transparent'},
       resetBoard:()=>this.setState({board:CARDS(),moves:0,hits:0,msg:'Board reset. In progress is full (3/3).'}),
       sim,law,data,sort:{items,score:sc,answered:ans},quiz,qc,gl,
+      ageBoard,simAge,review,cert,
       glList:GLOSSARY.map(g=>({term:g.term,def:g.def})),glOpen:!!st.glOpen,
       glPop:{show:!!glG&&!st.glOpen,term:glG?glG.term:'',def:glG?glG.def:''},
       openGlossary:()=>this.setState({glOpen:true,glTerm:null}),closeGlossary:()=>this.setState({glOpen:false}),
