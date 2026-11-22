@@ -44,6 +44,15 @@ export function createActions(dispatch) {
     tickSimulation: () => dispatch({ type: T.simTicked }),
     resetSimulation: () => dispatch({ type: T.simReset }),
 
+    // multi-stage simulator (H11)
+    staffStage: (stage, people) => dispatch({ type: T.stageStaffed, stage, people }),
+    restoreStaffing: () => dispatch({ type: T.stageStaffingRestored }),
+    stepStageSimulation: () => dispatch({ type: T.stageStepped }),
+    toggleStageSimulationRun: () => dispatch({ type: T.stageRunToggled }),
+    tickStageSimulation: () => dispatch({ type: T.stageTicked }),
+    resetStageSimulation: () => dispatch({ type: T.stageReset }),
+    guessBottleneck: (stage) => dispatch({ type: T.bottleneckGuessed, stage }),
+
     // metrics
     changeLittlesLaw: (field, value) => dispatch({ type: T.lawChanged, field, value }),
     answerLawChallenge: (option) => dispatch({ type: T.lawAnswered, option }),

@@ -70,6 +70,64 @@ describe('flowLabReducer', () => {
     expect(state.simulation.running).toBe(false);
   });
 
+  it('includes the bottleneck chapter only in the advanced path', () => {
+    expect(chaptersForPath('advanced')).toContain('bottleneck');
+    expect(chaptersForPath('beginner')).not.toContain('bottleneck');
+  });
+
+  it('awards Bottleneck Buster once, only after finding and fixing the bottleneck', () => {
+    const runDays = (state, days) => {
+      for (let i = 0; i < days; i++) state = reduce(state, { type: T.stageStepped });
+      return state;
+    };
+    let state = runDays(reduce(createInitialState(), { type: T.pathChosen, path: 'advanced' }), 15);
+
+    state = reduce(state, { type: T.bottleneckGuessed, stage: 'development' });
+    expect(state.bottleneckGuess).toEqual({ stage: 'development', correct: false });
+
+    // Fixing it without having found it earns nothing.
+    const unfound = runDays(
+      reduce(
+        state,
+        { type: T.stageStaffed, stage: 'analysis', people: 3 },
+        { type: T.stageStaffed, stage: 'development', people: 3 },
+        { type: T.stageStaffed, stage: 'testing', people: 3 },
+        { type: T.stageReset },
+      ),
+      30,
+    );
+    expect(unfound.xp['b:bottleneck']).toBeUndefined();
+
+    state = reduce(state, { type: T.bottleneckGuessed, stage: 'testing' });
+    expect(state.bottleneckGuess).toEqual({ stage: 'testing', correct: true });
+    expect(state.xp['b:bottleneck']).toBeUndefined();
+
+    state = reduce(
+      state,
+      { type: T.stageStaffed, stage: 'analysis', people: 3 },
+      { type: T.stageStaffed, stage: 'development', people: 3 },
+      { type: T.stageStaffed, stage: 'testing', people: 3 },
+      { type: T.stageReset },
+    );
+    expect(state.stageConfig).toEqual({ analysis: 3, development: 3, testing: 3 });
+    state = runDays(state, 30);
+    expect(state.xp['b:bottleneck']).toBe(80);
+    expect(state.ui.toast.label).toBe('Badge: Bottleneck Buster · +80 XP');
+
+    state = runDays(state, 5);
+    expect(Object.keys(state.xp).filter((key) => key === 'b:bottleneck')).toHaveLength(1);
+  });
+
+  it('ignores a bottleneck guess while no stage holds a queue', () => {
+    const state = reduce(beginner(), { type: T.stageStepped }, { type: T.bottleneckGuessed, stage: 'testing' });
+    expect(state.bottleneckGuess).toBeNull();
+  });
+
+  it('keeps the team size when staffing a stage', () => {
+    const state = reduce(beginner(), { type: T.stageStaffed, stage: 'testing', people: 7 });
+    expect(state.stageConfig).toEqual({ analysis: 4, development: 4, testing: 1 });
+  });
+
   it('closes the glossary with Escape', () => {
     const state = reduce(beginner(), { type: T.glossaryTermShown, key: 'wip' }, { type: T.escapePressed });
     expect(state.ui.glossaryTerm).toBeNull();
@@ -78,8 +136,14 @@ describe('flowLabReducer', () => {
 
 describe('ProgressStorage', () => {
   it('round-trips the saved v1 format', () => {
-    const state = reduce(beginner(), { type: T.cardMoved, cardId: 101, direction: -1 }, { type: T.lawAnswered, option: 0 });
+    const state = reduce(
+      beginner(),
+      { type: T.cardMoved, cardId: 101, direction: -1 },
+      { type: T.lawAnswered, option: 0 },
+      { type: T.stageStaffed, stage: 'analysis', people: 2 },
+    );
     const stored = ProgressStorage.toStored(state);
+    expect(stored.stageCfg).toEqual({ analysis: 2, development: 4, testing: 1 });
     expect(stored.board[0]).toMatchObject({ id: 101, t: 'Password reset email', col: 0, st: null });
     const restored = ProgressStorage.fromStored(JSON.parse(JSON.stringify(stored)), createInitialState());
     expect(ProgressStorage.toStored(restored)).toEqual(JSON.parse(JSON.stringify(stored)));

@@ -7,10 +7,13 @@ import { CsvImporter } from '../domain/CsvImporter.js';
 import { FlowSimulation } from '../domain/FlowSimulation.js';
 import { KanbanBoard } from '../domain/KanbanBoard.js';
 import { LearnerProgress } from '../domain/LearnerProgress.js';
+import { StageFlowSimulation, restaff } from '../domain/StageFlowSimulation.js';
 import {
+  createDefaultStaffing,
   createInitialBoard,
   createInitialQuiz,
   createInitialSimulation,
+  createInitialStageSimulation,
   createInitialTeamData,
 } from './initialState.js';
 import { selectCurrentChapter } from './selectors.js';
@@ -32,6 +35,14 @@ export const ActionTypes = {
   simRunToggled: 'simulation/runToggled',
   simTicked: 'simulation/ticked',
   simReset: 'simulation/reset',
+
+  stageStaffed: 'stageSimulation/staffed',
+  stageStaffingRestored: 'stageSimulation/staffingRestored',
+  stageStepped: 'stageSimulation/stepped',
+  stageRunToggled: 'stageSimulation/runToggled',
+  stageTicked: 'stageSimulation/ticked',
+  stageReset: 'stageSimulation/reset',
+  bottleneckGuessed: 'stageSimulation/bottleneckGuessed',
 
   lawChanged: 'law/changed',
   lawAnswered: 'law/answered',
@@ -110,6 +121,28 @@ function stepSimulation(state) {
   return simulation.meetsChallenge() ? grantReward(next, REWARDS.badge(BADGE_KEYS.flowMaster)) : next;
 }
 
+/** H11: the badge needs both steps, finding the bottleneck and then resolving it. */
+function checkBottleneckBadge(state, simulation) {
+  return state.bottleneckGuess?.correct && simulation.meetsChallenge()
+    ? grantReward(state, REWARDS.badge(BADGE_KEYS.bottleneckBuster))
+    : state;
+}
+
+function stepStageSimulation(state) {
+  const simulation = new StageFlowSimulation(state.stageSimulation.snapshot).step(state.stageConfig);
+  const next = { ...state, stageSimulation: { ...state.stageSimulation, snapshot: simulation.snapshot } };
+  return checkBottleneckBadge(next, simulation);
+}
+
+function guessBottleneck(state, stage) {
+  if (state.bottleneckGuess?.correct) return state;
+  const simulation = new StageFlowSimulation(state.stageSimulation.snapshot);
+  const bottleneck = simulation.bottleneckStage();
+  if (!bottleneck) return state;
+  const next = { ...state, bottleneckGuess: { stage, correct: stage === bottleneck } };
+  return checkBottleneckBadge(next, simulation);
+}
+
 function importCsv(state, text, label) {
   try {
     const imported = csvImporter.import(text);
@@ -161,6 +194,9 @@ export function flowLabReducer(state, action) {
         quiz: createInitialQuiz(),
         quickChecks: {},
         simulation: createInitialSimulation(),
+        stageConfig: createDefaultStaffing(),
+        stageSimulation: createInitialStageSimulation(),
+        bottleneckGuess: null,
       };
 
     // — board —
@@ -219,6 +255,41 @@ export function flowLabReducer(state, action) {
 
     case ActionTypes.simReset:
       return { ...state, simulation: createInitialSimulation() };
+
+    // — multi-stage simulator (H11) —
+    case ActionTypes.stageStaffed:
+      return { ...state, stageConfig: restaff(state.stageConfig, action.stage, action.people) };
+
+    case ActionTypes.stageStaffingRestored:
+      return { ...state, stageConfig: createDefaultStaffing() };
+
+    case ActionTypes.stageStepped:
+      return stepStageSimulation(state);
+
+    case ActionTypes.stageRunToggled:
+      return state.stageSimulation.running
+        ? { ...state, stageSimulation: { ...state.stageSimulation, running: false } }
+        : {
+            ...state,
+            stageSimulation: {
+              ...state.stageSimulation,
+              running: true,
+              runUntilDay: state.stageSimulation.snapshot.day + 30,
+            },
+          };
+
+    case ActionTypes.stageTicked:
+      if (!state.stageSimulation.running) return state;
+      if (state.stageSimulation.snapshot.day >= state.stageSimulation.runUntilDay) {
+        return { ...state, stageSimulation: { ...state.stageSimulation, running: false } };
+      }
+      return stepStageSimulation(state);
+
+    case ActionTypes.stageReset:
+      return { ...state, stageSimulation: createInitialStageSimulation() };
+
+    case ActionTypes.bottleneckGuessed:
+      return guessBottleneck(state, action.stage);
 
     // — Little's Law —
     case ActionTypes.lawChanged:

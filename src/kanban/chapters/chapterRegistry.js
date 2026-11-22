@@ -1,5 +1,6 @@
 import { BasicsChapter } from './basics/BasicsChapter.jsx';
 import { BoardChapter } from './board/BoardChapter.jsx';
+import { BottleneckChapter } from './bottleneck/BottleneckChapter.jsx';
 import { CompareChapter } from './compare/CompareChapter.jsx';
 import { DebriefChapter } from './debrief/DebriefChapter.jsx';
 import { MetricsChapter } from './metrics/MetricsChapter.jsx';
@@ -13,6 +14,7 @@ export const CHAPTER_COMPONENTS = {
   basics: BasicsChapter,
   board: BoardChapter,
   flow: SimulatorChapter,
+  bottleneck: BottleneckChapter,
   metrics: MetricsChapter,
   compare: CompareChapter,
   quiz: QuizChapter,
