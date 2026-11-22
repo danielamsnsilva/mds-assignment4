@@ -313,6 +313,21 @@ input[type=range] { accent-color: var(--color-accent); width: 100%; }
 .cfd-area--waiting { fill: var(--color-accent-600); }
 .cfd-area--progress { fill: var(--color-accent-700); }
 .cfd-area--done { fill: var(--color-accent-900); }
+/* H11: one band per stage in the multi-stage CFD */
+.swatch--analysis { background: var(--color-accent-300); }
+.swatch--development { background: var(--color-accent-500); }
+.swatch--testing { background: var(--color-accent-700); }
+.cfd-area--analysis { fill: var(--color-accent-300); }
+.cfd-area--development { fill: var(--color-accent-500); }
+.cfd-area--testing { fill: var(--color-accent-700); }
+
+.bottleneck-step { gap: 12px; }
+.bottleneck-step__question { font-family: var(--font-heading); font-weight: 600; font-size: 22px; }
+.bottleneck-step__options { display: flex; flex-wrap: wrap; gap: 8px; }
+.bottleneck-step__options .answer-option { flex: 1 1 120px; }
+.bottleneck-step__options .answer-option.is-idle:disabled { opacity: 0.55; cursor: not-allowed; }
+.bottleneck-step__feedback { margin: 0; font-size: 14px; }
+.bottleneck-step__targets { margin: 0; padding-left: 18px; font-size: 14px; }
 .throughput-bars { fill: var(--color-accent-700); stroke: var(--color-accent-900); stroke-width: 0.5; }
 .percentile-line { stroke-width: 2; }
 .percentile-line--p50 { stroke: var(--color-accent-700); stroke-dasharray: 6 4; }

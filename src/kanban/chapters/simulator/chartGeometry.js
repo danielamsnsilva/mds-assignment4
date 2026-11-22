@@ -30,6 +30,26 @@ export function cumulativeFlowGeometry(history) {
   };
 }
 
+/**
+ * H11: stacked bands of a CFD with any number of stages. `keys` are the
+ * cumulative history fields from first stage to Done; each band lies between
+ * one key and the next, and the last one (Done) sits on the axis.
+ */
+export function stageFlowGeometry(history, keys) {
+  const last = history[history.length - 1];
+  const maxX = Math.max(30, history.length - 1);
+  const maxY = Math.max(10, last[keys[0]]);
+  const x = (i) => ((i / maxX) * CHART_WIDTH).toFixed(1);
+  const y = (value) => (CFD_HEIGHT - (value / maxY) * 232).toFixed(1);
+  const line = (key) => history.map((point, i) => `${x(i)},${y(point[key])}`);
+  const baseline = [`${x(history.length - 1)},${CFD_HEIGHT}`, `0,${CFD_HEIGHT}`];
+  const bands = keys.map((key, i) => {
+    const lower = i < keys.length - 1 ? line(keys[i + 1]).reverse() : baseline;
+    return { key, path: `M${line(key).join(' L')} L${lower.join(' L')} Z` };
+  });
+  return { bands, maxX, maxY };
+}
+
 /** One bar per day of daily throughput. */
 export function throughputGeometry(counts) {
   const max = Math.max(1, ...counts);

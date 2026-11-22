@@ -7,6 +7,7 @@ export const RANKS = ['Card Mover', 'Flow Apprentice', 'WIP Wrangler', 'Flow Eng
 export const BADGES = [
   { key: 'b:board', name: 'Stop Starting', how: 'Clear the Kanban board', amount: 100 },
   { key: 'b:flow', name: 'Flow Master', how: 'Beat the simulator challenge', amount: 100 },
+  { key: 'b:bottleneck', name: 'Bottleneck Buster', how: 'Find and fix the bottleneck (Path B)', amount: 80 },
   { key: 'b:law', name: 'Law Keeper', how: "Solve the Little's Law challenge", amount: 40 },
   { key: 'b:sort', name: 'Sorter', how: '6+ correct in Kanban vs Scrum', amount: 50 },
   { key: 'b:quiz', name: 'Quiz Ace', how: '5+ correct in the final quiz', amount: 60 },
@@ -15,6 +16,7 @@ export const BADGES = [
 export const BADGE_KEYS = {
   boardCleared: 'b:board',
   flowMaster: 'b:flow',
+  bottleneckBuster: 'b:bottleneck',
   lawKeeper: 'b:law',
   sorter: 'b:sort',
   quizAce: 'b:quiz',

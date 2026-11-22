@@ -4,6 +4,7 @@ export const CHAPTERS = {
   basics: { title: 'Kanban in five minutes', shortTitle: 'Basics' },
   board: { title: 'Run the board', shortTitle: 'Board' },
   flow: { title: 'Flow simulator', shortTitle: 'Simulator' },
+  bottleneck: { title: 'Find the bottleneck', shortTitle: 'Bottleneck' },
   metrics: { title: 'Measure flow', shortTitle: 'Metrics' },
   compare: { title: 'Kanban vs Scrum', shortTitle: 'vs Scrum' },
   quiz: { title: 'Final quiz', shortTitle: 'Quiz' },
@@ -25,12 +26,12 @@ export const LEARNING_PATHS = {
   advanced: {
     id: 'advanced',
     label: 'Path B · Advanced',
-    kicker: 'Path B · 7 chapters',
+    kicker: 'Path B · 8 chapters',
     name: 'Advanced',
     description:
-      "Already run a board? Skip ahead to WIP control, cumulative flow, Little's Law, and percentile forecasts.",
+      "Already run a board? Skip ahead to WIP control, cumulative flow, bottlenecks, Little's Law, and percentile forecasts.",
     cta: 'Start path B →',
-    chapters: ['start', 'board', 'flow', 'metrics', 'compare', 'quiz', 'finish'],
+    chapters: ['start', 'board', 'flow', 'bottleneck', 'metrics', 'compare', 'quiz', 'finish'],
   },
 };
 

@@ -39,6 +39,13 @@ export function FlowLabProvider({ storage, children }) {
     return () => clearInterval(timer);
   }, [actions, running]);
 
+  const stageRunning = state.stageSimulation.running;
+  useEffect(() => {
+    if (!stageRunning) return undefined;
+    const timer = setInterval(actions.tickStageSimulation, SIMULATION_TICK_MS);
+    return () => clearInterval(timer);
+  }, [actions, stageRunning]);
+
   useEffect(() => {
     const onKeyDown = (event) => {
       if (event.key === 'Escape') actions.pressEscape();

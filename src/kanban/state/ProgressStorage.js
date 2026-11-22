@@ -55,6 +55,8 @@ export class ProgressStorage {
       quiz: { i: quiz.index, pick: quiz.pick, score: quiz.score, done: quiz.done },
       cfg: { arrival: simConfig.arrivalRate, cap: simConfig.capacity, wip: simConfig.wipLimit },
       qc: state.quickChecks,
+      stageCfg: state.stageConfig,
+      bnGuess: state.bottleneckGuess,
     };
   }
 
@@ -99,6 +101,8 @@ export class ProgressStorage {
         ? { arrivalRate: stored.cfg.arrival, capacity: stored.cfg.cap, wipLimit: stored.cfg.wip }
         : defaults.simConfig,
       quickChecks: has('qc') ? stored.qc : defaults.quickChecks,
+      stageConfig: has('stageCfg') ? { ...defaults.stageConfig, ...stored.stageCfg } : defaults.stageConfig,
+      bottleneckGuess: has('bnGuess') ? stored.bnGuess : defaults.bottleneckGuess,
     };
   }
 }
