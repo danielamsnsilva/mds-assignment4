@@ -1,0 +1,23 @@
+{
+  "name": "flowlab",
+  "private": true,
+  "version": "1.0.0",
+  "description": "FLOW/LAB - interactive field manual on Kanban and flow metrics",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.7.0",
+    "vite": "6.4.1",
+    "vitest": "3.2.4"
+  }
+}
