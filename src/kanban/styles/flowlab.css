@@ -406,6 +406,16 @@ input[type=range] { accent-color: var(--color-accent); width: 100%; }
 .comparison-table { min-width: 560px; }
 .comparison-table__aspect { font-weight: 500; }
 
+/* ══ Chapter: Scrumban (H15) ═══════════════════════════════════════════ */
+.scrumban__sle-note { margin: 16px 0 0; max-width: 72ch; }
+.scrumban__score { margin: 0 0 12px; font-size: 14px; font-weight: 500; }
+.scrumban-table { min-width: 520px; }
+.scrumban-table__event { font-weight: 500; white-space: nowrap; vertical-align: top; }
+.scenario-card__event { margin: 0; }
+.scenario-card__text { font-size: 15px; font-weight: 500; margin: 0; text-wrap: pretty; }
+.scenario-card__options { display: flex; flex-direction: column; gap: 6px; }
+.scenario-card__feedback { font-size: 13px; color: var(--color-neutral-800); }
+
 /* ══ Chapter: Final quiz ═══════════════════════════════════════════════ */
 .quiz { max-width: 760px; }
 .quiz__meta { display: flex; justify-content: space-between; font-size: 13px; color: var(--color-neutral-700); }

@@ -47,6 +47,20 @@ export const QUICK_CHECKS = {
       explanation: 'A steeper Done band means more items finished per day, which is throughput.',
     },
   ],
+  scrumban: [
+    {
+      question: 'A Scrum team adopts Kanban practices. What happens to the Sprint and the Sprint Goal?',
+      options: ['They are replaced by continuous flow', 'They stay; Kanban adds flow practices inside the Sprint', 'The Sprint becomes optional'],
+      answer: 1,
+      explanation: 'The Kanban Guide for Scrum Teams adds flow practices to Scrum; it does not replace any Scrum event, artifact or accountability.',
+    },
+    {
+      question: 'Who owns the Definition of Workflow in a Scrum team?',
+      options: ['The Scrum Master', 'The Product Owner', 'The Developers'],
+      answer: 2,
+      explanation: 'The Developers own the Definition of Workflow, because they are the ones doing the work and controlling WIP. The whole Scrum team can help improve it.',
+    },
+  ],
   metrics: [
     {
       question: 'Average WIP is 10 items and throughput is 2 items/day. What is the average cycle time?',
@@ -108,6 +122,41 @@ export const SORT_STATEMENTS = [
   { statement: 'It tracks WIP, throughput, work item age, and cycle time.', answer: 0, explanation: 'Kanban: these are the four mandatory flow metrics in The Kanban Guide.' },
   { statement: 'A retrospective is a mandatory event in each cycle.', answer: 1, explanation: 'Scrum: the Sprint Retrospective is one of the formal events in each Sprint.' },
   { statement: 'A visual board can help a team track the state of work.', answer: 2, explanation: 'Both: Kanban visualizes workflow, and Scrum teams may also use boards.' },
+];
+
+/**
+ * H15: Sprint flow challenge in the Scrumban chapter. Each scenario happens
+ * during a Sprint; `answer` indexes `options`.
+ */
+export const SPRINT_SCENARIOS = [
+  {
+    event: 'Day 4 of a 10-day Sprint',
+    scenario: 'Development is at its WIP limit (3/3). A developer has finished a task and wants to start a new Sprint Backlog item.',
+    options: ['Start the new item; it is in the Sprint Backlog', 'Help finish an item that is already in progress', 'Raise the WIP limit until the end of the Sprint'],
+    answer: 1,
+    explanation: 'The WIP limit is part of the Definition of Workflow. Freeing capacity by finishing work keeps items flowing and protects the Sprint Goal.',
+  },
+  {
+    event: 'Daily Scrum',
+    scenario: 'The SLE is "85% of items finish in 8 days or less". One item has been in progress for 7 days; the others are 1 to 3 days old.',
+    options: ['Talk about the 7-day-old item first and plan how to finish it', 'Go around the room so everyone reports on yesterday', 'Wait for the Sprint Review to discuss it'],
+    answer: 0,
+    explanation: 'Work Item Age is the earliest warning signal. A flow-based Daily Scrum focuses on items at risk of missing the SLE and acts on them now.',
+  },
+  {
+    event: 'Sprint Planning',
+    scenario: 'Over the last 6 Sprints the team finished between 9 and 12 items per Sprint. How should it decide how much to pull into this Sprint?',
+    options: ['Pull as many items as the stakeholders ask for', 'Estimate every item in hours and add them up', 'Use the throughput history to forecast how many items are likely to fit'],
+    answer: 2,
+    explanation: 'The Kanban Guide for Scrum Teams suggests using historical throughput to forecast, for example with Monte Carlo simulation, rather than effort estimates.',
+  },
+  {
+    event: 'Sprint Retrospective',
+    scenario: 'In every Sprint, items pile up in "Review" while developers keep starting new work.',
+    options: ['Adapt the Definition of Workflow, for example add a WIP limit or pull policy for Review', 'Add an extra Sprint to catch up on reviews', 'Stop measuring flow; the numbers look bad'],
+    answer: 0,
+    explanation: 'The Retrospective is where the team inspects flow and adapts the Definition of Workflow, such as WIP limits, policies or the SLE.',
+  },
 ];
 
 /** Little's Law challenge in the Metrics chapter. */

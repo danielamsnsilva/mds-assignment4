@@ -39,6 +39,7 @@ export function DebriefChapter() {
     pathId: state.path,
     quickChecks: state.quickChecks,
     sortAnswers: state.sortAnswers,
+    scrumbanAnswers: state.scrumbanAnswers,
     lawAnswer: state.lawAnswer,
     quiz: state.quiz,
     xpLedger: state.xp,

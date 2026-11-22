@@ -48,6 +48,7 @@ export class ProgressStorage {
       hits: board.wipLimitHits,
       revealed: state.revealedMeasures,
       sortAns: state.sortAnswers,
+      sbAns: state.scrumbanAnswers,
       lawPick: state.lawAnswer,
       rows: teamData.rows.map((row) => ({ id: row.id, s: row.start, f: row.finish })),
       rowsLabel: teamData.sourceLabel,
@@ -85,6 +86,7 @@ export class ProgressStorage {
       },
       revealedMeasures: has('revealed') ? stored.revealed : defaults.revealedMeasures,
       sortAnswers: has('sortAns') ? stored.sortAns : defaults.sortAnswers,
+      scrumbanAnswers: has('sbAns') ? stored.sbAns : defaults.scrumbanAnswers,
       lawAnswer: has('lawPick') ? stored.lawPick : defaults.lawAnswer,
       teamData: {
         ...defaults.teamData,

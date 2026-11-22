@@ -50,6 +50,7 @@ src/
       selectors.js               derived data (current chapter, progress…)
     components/                  Reusable UI: layout, overlays, common widgets
     chapters/                    One folder per chapter, one component per piece
+      scrumban/                  Kanban inside the Sprint + Sprint flow challenge (H15)
     styles/flowlab.css           App styles built on the design-system tokens
 ```
 
