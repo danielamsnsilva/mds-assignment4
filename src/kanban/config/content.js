@@ -62,13 +62,77 @@ export const COMPARISON_ROWS = [
 export const COMPARISON_SUMMARY =
   'A Scrum team can add Kanban practices while continuing to follow the Scrum Guide.';
 
+/**
+ * H15: elements of a Definition of Workflow, from The Kanban Guide for Scrum
+ * Teams. The Developers own it and inspect and adapt it every Sprint.
+ */
+export const DEFINITION_OF_WORKFLOW = [
+  {
+    title: 'Start and finish points',
+    text: 'Agree on when an item counts as started and when it counts as finished, so flow metrics mean the same thing to everyone.',
+  },
+  {
+    title: 'Workflow states',
+    text: 'Name the states an item passes through between started and finished, for example Develop, Review and Test.',
+  },
+  {
+    title: 'Control of WIP',
+    text: 'Limit how many items can be in progress, per state or for the whole workflow, so the team finishes before it starts.',
+  },
+  {
+    title: 'Service Level Expectation',
+    text: 'Forecast how long a single item should take from start to finish, for example "85% of items finish in 8 days or less".',
+  },
+  {
+    title: 'Explicit pull policies',
+    text: 'Write down how and when items are pulled from one state to the next, so decisions do not depend on who is asking.',
+  },
+];
+
+/** H15: how a Scrum team uses flow in each Scrum event. */
+export const SCRUM_EVENTS_FLOW = [
+  {
+    event: 'Sprint Planning',
+    focus:
+      'Use historical throughput to forecast how many items fit in the Sprint, instead of guessing. Check that the Definition of Workflow still fits the work.',
+  },
+  {
+    event: 'Daily Scrum',
+    focus:
+      'Walk the board from right to left. Talk about blocked items, items whose age is close to the SLE, and states at their WIP limit, not just about what each person did.',
+  },
+  {
+    event: 'Sprint Review',
+    focus:
+      'Show what was delivered and use flow metrics, such as throughput and cycle time, to discuss forecasts with stakeholders.',
+  },
+  {
+    event: 'Sprint Retrospective',
+    focus:
+      'Inspect the flow metrics and adapt the Definition of Workflow: change a WIP limit, a pull policy or the SLE.',
+  },
+  {
+    event: 'Product Backlog refinement',
+    focus:
+      'Right-size items: ask whether each item is small enough to finish within the SLE, and split it if it is not.',
+  },
+];
+
+export const SCRUMBAN_SUMMARY =
+  'Kanban does not replace Scrum. The Sprint, the Sprint Goal, the accountabilities and the events stay the same; flow practices make the work inside them more transparent.';
+
 export const SOURCES = {
   kanbanGuide: 'https://kanbanguides.org/the-kanban-guide/2025.5/',
+  kanbanGuideScrumTeams: 'https://www.scrum.org/resources/kanban-guide-scrum-teams',
   scrumGuide: 'https://scrumguides.org/scrum-guide.html',
 };
 
 export const REFERENCES = [
   { text: 'The Kanban Guide, version 2025.5 (May 2025).', link: { href: SOURCES.kanbanGuide, label: 'kanbanguides.org' } },
+  {
+    text: 'Vacanti, D. & Yeret, Y. The Kanban Guide for Scrum Teams. Scrum.org, 2021.',
+    link: { href: SOURCES.kanbanGuideScrumTeams, label: 'scrum.org' },
+  },
   { text: 'Vacanti, D. Actionable Agile Metrics for Predictability. 2015.' },
   { text: 'Anderson, D. J. Kanban: Successful Evolutionary Change for Your Technology Business. 2010.' },
   { text: 'Little, J. D. C. A Proof for the Queuing Formula L = λW. Operations Research, 1961.' },

@@ -67,6 +67,7 @@ export function createActions(dispatch) {
 
     // questions
     answerSortStatement: (statement, option) => dispatch({ type: T.sortAnswered, statement, option }),
+    answerSprintScenario: (scenario, option) => dispatch({ type: T.scrumbanAnswered, scenario, option }),
     answerQuiz: (option) => dispatch({ type: T.quizAnswered, option }),
     nextQuizQuestion: () => dispatch({ type: T.quizAdvanced }),
     restartQuiz: () => dispatch({ type: T.quizRestarted }),

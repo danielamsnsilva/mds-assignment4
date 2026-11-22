@@ -1,5 +1,5 @@
 import { FLOW_MEASURES } from '../config/content.js';
-import { LAW_CHALLENGE, QUICK_CHECKS, SORT_STATEMENTS, finalQuizForPath } from '../config/questions.js';
+import { LAW_CHALLENGE, QUICK_CHECKS, SORT_STATEMENTS, SPRINT_SCENARIOS, finalQuizForPath } from '../config/questions.js';
 import { BADGE_KEYS, REWARDS, THRESHOLDS } from '../config/rewards.js';
 import { MDS26_SAMPLE_LABEL, MDS26_SAMPLE_NAME } from '../config/teamData.js';
 import { BOARD_MESSAGES } from '../config/board.js';
@@ -52,6 +52,8 @@ export const ActionTypes = {
   csvImportFailed: 'teamData/csvImportFailed',
 
   sortAnswered: 'compare/sortAnswered',
+
+  scrumbanAnswered: 'scrumban/scenarioAnswered',
 
   quizAnswered: 'quiz/answered',
   quizAdvanced: 'quiz/advanced',
@@ -189,6 +191,7 @@ export function flowLabReducer(state, action) {
         board: createInitialBoard(),
         revealedMeasures: {},
         sortAnswers: {},
+        scrumbanAnswers: {},
         lawAnswer: null,
         teamData: createInitialTeamData(),
         quiz: createInitialQuiz(),
@@ -327,6 +330,20 @@ export function flowLabReducer(state, action) {
       }
       const correct = SORT_STATEMENTS.filter((s, i) => sortAnswers[i] === s.answer).length;
       return correct >= THRESHOLDS.sorterCorrectAnswers ? grantReward(next, REWARDS.badge(BADGE_KEYS.sorter)) : next;
+    }
+
+    // — Scrumban: Sprint flow challenge (H15) —
+    case ActionTypes.scrumbanAnswered: {
+      if (state.scrumbanAnswers[action.scenario] != null) return state;
+      const scrumbanAnswers = { ...state.scrumbanAnswers, [action.scenario]: action.option };
+      let next = { ...state, scrumbanAnswers };
+      if (action.option === SPRINT_SCENARIOS[action.scenario].answer) {
+        next = grantReward(next, REWARDS.sprintScenarioCorrect(action.scenario));
+      }
+      const correct = SPRINT_SCENARIOS.filter((s, i) => scrumbanAnswers[i] === s.answer).length;
+      return correct >= THRESHOLDS.scrumbanCorrectAnswers
+        ? grantReward(next, REWARDS.badge(BADGE_KEYS.flowSprinter))
+        : next;
     }
 
     // — final quiz —

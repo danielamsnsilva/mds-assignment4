@@ -17,7 +17,7 @@ describe('flowLabReducer', () => {
   });
 
   it('keeps the chapter index inside the path', () => {
-    expect(reduce(beginner(), { type: T.chapterSelected, index: 99 }).chapterIndex).toBe(7);
+    expect(reduce(beginner(), { type: T.chapterSelected, index: 99 }).chapterIndex).toBe(8);
     expect(reduce(beginner(), { type: T.chapterSelected, index: -3 }).chapterIndex).toBe(0);
   });
 
@@ -128,6 +128,33 @@ describe('flowLabReducer', () => {
     expect(state.stageConfig).toEqual({ analysis: 4, development: 4, testing: 1 });
   });
 
+  it('includes the Scrumban chapter after Kanban vs Scrum in both paths (H15)', () => {
+    ['beginner', 'advanced'].forEach((path) => {
+      const chapters = chaptersForPath(path);
+      expect(chapters.indexOf('scrumban')).toBe(chapters.indexOf('compare') + 1);
+    });
+  });
+
+  it('awards Flow Sprinter after 3 correct Sprint scenarios and ignores re-answers (H15)', () => {
+    let state = reduce(
+      beginner(),
+      { type: T.scrumbanAnswered, scenario: 0, option: 1 },
+      { type: T.scrumbanAnswered, scenario: 0, option: 0 },
+      { type: T.scrumbanAnswered, scenario: 1, option: 1 },
+    );
+    expect(state.scrumbanAnswers).toEqual({ 0: 1, 1: 1 });
+    expect(state.xp).toEqual({ 'sb:0': 10 });
+
+    state = reduce(state, { type: T.scrumbanAnswered, scenario: 2, option: 2 });
+    expect(state.xp['b:scrumban']).toBeUndefined();
+
+    state = reduce(state, { type: T.scrumbanAnswered, scenario: 3, option: 0 });
+    expect(state.xp['b:scrumban']).toBe(60);
+    expect(state.ui.toast.label).toBe('Badge: Flow Sprinter · +60 XP');
+
+    expect(reduce(state, { type: T.progressRestarted }).scrumbanAnswers).toEqual({});
+  });
+
   it('closes the glossary with Escape', () => {
     const state = reduce(beginner(), { type: T.glossaryTermShown, key: 'wip' }, { type: T.escapePressed });
     expect(state.ui.glossaryTerm).toBeNull();
@@ -141,9 +168,11 @@ describe('ProgressStorage', () => {
       { type: T.cardMoved, cardId: 101, direction: -1 },
       { type: T.lawAnswered, option: 0 },
       { type: T.stageStaffed, stage: 'analysis', people: 2 },
+      { type: T.scrumbanAnswered, scenario: 1, option: 0 },
     );
     const stored = ProgressStorage.toStored(state);
     expect(stored.stageCfg).toEqual({ analysis: 2, development: 4, testing: 1 });
+    expect(stored.sbAns).toEqual({ 1: 0 });
     expect(stored.board[0]).toMatchObject({ id: 101, t: 'Password reset email', col: 0, st: null });
     const restored = ProgressStorage.fromStored(JSON.parse(JSON.stringify(stored)), createInitialState());
     expect(ProgressStorage.toStored(restored)).toEqual(JSON.parse(JSON.stringify(stored)));
@@ -175,5 +204,30 @@ describe('ReviewPlanner', () => {
     }).plan(chaptersForPath('beginner'));
     expect(plan.answeredCount).toBe(3);
     expect(plan.groups.map((g) => g.chapter)).toEqual(['basics', 'metrics', 'compare']);
+  });
+
+  it('lists wrong Sprint scenarios under the Scrumban chapter (H15)', () => {
+    const state = reduce(
+      beginner(),
+      { type: T.scrumbanAnswered, scenario: 0, option: 0 },
+      { type: T.scrumbanAnswered, scenario: 1, option: 0 },
+    );
+    const plan = new ReviewPlanner({
+      pathId: state.path,
+      quickChecks: state.quickChecks,
+      sortAnswers: state.sortAnswers,
+      scrumbanAnswers: state.scrumbanAnswers,
+      lawAnswer: state.lawAnswer,
+      quiz: state.quiz,
+      xpLedger: state.xp,
+    }).plan(chaptersForPath('beginner'));
+    expect(plan.answeredCount).toBe(2);
+    expect(plan.groups).toEqual([
+      {
+        chapter: 'scrumban',
+        chapterIndex: 6,
+        items: [{ source: 'Sprint flow challenge', text: expect.stringContaining('Day 4 of a 10-day Sprint') }],
+      },
+    ]);
   });
 });

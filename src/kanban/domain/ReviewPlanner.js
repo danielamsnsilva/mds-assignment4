@@ -1,4 +1,4 @@
-import { LAW_CHALLENGE, QUICK_CHECKS, SORT_STATEMENTS, finalQuizForPath } from '../config/questions.js';
+import { LAW_CHALLENGE, QUICK_CHECKS, SORT_STATEMENTS, SPRINT_SCENARIOS, finalQuizForPath } from '../config/questions.js';
 import { REWARDS } from '../config/rewards.js';
 
 /**
@@ -11,14 +11,16 @@ export class ReviewPlanner {
    * @param {string|null} answers.pathId
    * @param {object} answers.quickChecks  `{ "chapter:index": optionIndex }`
    * @param {object} answers.sortAnswers  `{ statementIndex: optionIndex }`
+   * @param {object} [answers.scrumbanAnswers] `{ scenarioIndex: optionIndex }` (H15)
    * @param {number|null} answers.lawAnswer
    * @param {object} answers.quiz          `{ index, pick, done }`
    * @param {object} answers.xpLedger      used to tell which final-quiz answers were right
    */
-  constructor({ pathId, quickChecks, sortAnswers, lawAnswer, quiz, xpLedger }) {
+  constructor({ pathId, quickChecks, sortAnswers, scrumbanAnswers = {}, lawAnswer, quiz, xpLedger }) {
     this.pathId = pathId;
     this.quickChecks = quickChecks;
     this.sortAnswers = sortAnswers;
+    this.scrumbanAnswers = scrumbanAnswers;
     this.lawAnswer = lawAnswer;
     this.quiz = quiz;
     this.xpLedger = xpLedger;
@@ -45,6 +47,16 @@ export class ReviewPlanner {
       const pick = this.sortAnswers[index];
       if (pick == null) return;
       record(pick === statement.answer, { chapter: 'compare', source: 'Kanban vs Scrum', text: statement.statement });
+    });
+
+    SPRINT_SCENARIOS.forEach((scenario, index) => {
+      const pick = this.scrumbanAnswers[index];
+      if (pick == null) return;
+      record(pick === scenario.answer, {
+        chapter: 'scrumban',
+        source: 'Sprint flow challenge',
+        text: `${scenario.event}: ${scenario.scenario}`,
+      });
     });
 
     if (this.lawAnswer != null) {

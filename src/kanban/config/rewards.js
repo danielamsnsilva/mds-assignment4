@@ -10,6 +10,7 @@ export const BADGES = [
   { key: 'b:bottleneck', name: 'Bottleneck Buster', how: 'Find and fix the bottleneck (Path B)', amount: 80 },
   { key: 'b:law', name: 'Law Keeper', how: "Solve the Little's Law challenge", amount: 40 },
   { key: 'b:sort', name: 'Sorter', how: '6+ correct in Kanban vs Scrum', amount: 50 },
+  { key: 'b:scrumban', name: 'Flow Sprinter', how: '3+ correct in the Sprint flow challenge', amount: 60 },
   { key: 'b:quiz', name: 'Quiz Ace', how: '5+ correct in the final quiz', amount: 60 },
 ];
 
@@ -19,11 +20,13 @@ export const BADGE_KEYS = {
   bottleneckBuster: 'b:bottleneck',
   lawKeeper: 'b:law',
   sorter: 'b:sort',
+  flowSprinter: 'b:scrumban',
   quizAce: 'b:quiz',
 };
 
 export const THRESHOLDS = {
   sorterCorrectAnswers: 6,
+  scrumbanCorrectAnswers: 3,
   quizAceCorrectAnswers: 5,
 };
 
@@ -32,6 +35,7 @@ export const REWARDS = {
   chapterCompleted: (chapterKey) => ({ key: `ch:${chapterKey}`, amount: 25 }),
   allMeasuresRevealed: () => ({ key: 'basics:reveal', amount: 30 }),
   sortStatementCorrect: (index) => ({ key: `s:${index}`, amount: 10 }),
+  sprintScenarioCorrect: (index) => ({ key: `sb:${index}`, amount: 10 }),
   quizQuestionCorrect: (pathId, index) => ({ key: `q:${pathId}:${index}`, amount: 20 }),
   quickCheckCorrect: (questionId) => ({ key: `qc:${questionId}`, amount: 15 }),
   badge: (badgeKey) => {

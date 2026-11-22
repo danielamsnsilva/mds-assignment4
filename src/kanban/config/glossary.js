@@ -12,6 +12,8 @@ export const GLOSSARY = [
   { key: 'swarm', term: 'Swarming', definition: 'Team members stop starting new work and help finish or unblock an item that is already in progress.' },
   { key: 'bottleneck', term: 'Bottleneck', definition: 'The workflow state with the least capacity. Work queues in front of it, and it limits the throughput of the whole system.' },
   { key: 'p85', term: '85th percentile', definition: 'The value below which 85% of observations fall. "85th percentile cycle time is 8 days" means 85% of items finished in 8 days or less.' },
+  { key: 'dow', term: 'Definition of Workflow', definition: "A Scrum team's explicit agreement on how work flows: the start and finish points, the workflow states, how WIP is controlled, the Service Level Expectation and the pull policies. The Developers own it and adapt it in the Sprint Retrospective." },
+  { key: 'sle', term: 'Service Level Expectation (SLE)', definition: 'A forecast of how long a single work item should take from start to finish, with a probability. For example: "85% of items finish in 8 days or less".' },
   { key: 'little', term: "Little's Law", definition: 'Average cycle time = average WIP ÷ average throughput. It holds for averages in a stable system, where items arrive about as fast as they leave.' },
 ];
 

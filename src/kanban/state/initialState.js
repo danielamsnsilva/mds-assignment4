@@ -42,6 +42,7 @@ export function createInitialState() {
     board: createInitialBoard(),
     revealedMeasures: {},
     sortAnswers: {},
+    scrumbanAnswers: {}, // H15: { scenarioIndex: optionIndex }
     lawAnswer: null,
     littlesLaw: { wip: 12, throughput: 3 },
     teamData: createInitialTeamData(),

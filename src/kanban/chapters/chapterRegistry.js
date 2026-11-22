@@ -5,6 +5,7 @@ import { CompareChapter } from './compare/CompareChapter.jsx';
 import { DebriefChapter } from './debrief/DebriefChapter.jsx';
 import { MetricsChapter } from './metrics/MetricsChapter.jsx';
 import { QuizChapter } from './quiz/QuizChapter.jsx';
+import { ScrumbanChapter } from './scrumban/ScrumbanChapter.jsx';
 import { SimulatorChapter } from './simulator/SimulatorChapter.jsx';
 import { StartChapter } from './start/StartChapter.jsx';
 
@@ -17,6 +18,7 @@ export const CHAPTER_COMPONENTS = {
   bottleneck: BottleneckChapter,
   metrics: MetricsChapter,
   compare: CompareChapter,
+  scrumban: ScrumbanChapter,
   quiz: QuizChapter,
   finish: DebriefChapter,
 };
