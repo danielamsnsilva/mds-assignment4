@@ -49,7 +49,7 @@ export default async (request: Request): Promise<Response> => {
   const expiresAt = Math.floor(Date.now() / 1000) + SESSION_DURATION_SECONDS;
   const payload = String(expiresAt);
   const signature = createHmac("sha256", sessionSecret).update(payload).digest("base64url");
-  const cookie = `${SESSION_COOKIE}=${payload}.${signature}; Max-Age=${SESSION_DURATION_SECONDS}; Path=/KanbanFlowLab.html; HttpOnly; Secure; SameSite=Lax`;
+  const cookie = `${SESSION_COOKIE}=${payload}.${signature}; Max-Age=${SESSION_DURATION_SECONDS}; Path=/; HttpOnly; Secure; SameSite=Lax`;
 
   return jsonResponse(200, { success: true }, { "Set-Cookie": cookie });
 };
