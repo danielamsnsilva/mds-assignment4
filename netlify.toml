@@ -4,12 +4,3 @@ publish = "dist"
 
 [build.environment]
 NODE_VERSION = "22"
-
-# The Kanban page and the JavaScript that only it uses require a signed session.
-[[edge_functions]]
-function = "protect-kanban"
-path = "/KanbanFlowLab.html"
-
-[[edge_functions]]
-function = "protect-kanban"
-path = "/kanban-assets/*"

@@ -15,21 +15,14 @@ npm run build     # production build in dist/
 npm run preview   # serve the production build locally
 ```
 
-In `npm run dev` the login page cannot reach the Netlify function. Open
-`/KanbanFlowLab.html` directly, or run `netlify dev` to test the full login flow.
-
 ## Project structure
 
 ```
-index.html                 Login page entry (public)
-KanbanFlowLab.html         FLOW/LAB entry (password protected)
+index.html                 FLOW/LAB entry (home page)
 src/
   shared/
     components/Blueprint.jsx   Wireframe frame with "+" corner marks
     styles/design-system.css   "Industry" design-system tokens and classes
-  login/
-    LoginPage.jsx              Login screen
-    AuthClient.js              Calls the Netlify authenticate function
   kanban/
     App.jsx                    Page shell: header, current chapter, overlays
     config/                    Course content and settings (no logic):
@@ -63,25 +56,4 @@ single-file version, so learners keep their XP, badges and answers.
 
 ## Deploy to Netlify
 
-`netlify.toml` runs `npm run build` and publishes `dist/`. The build writes
-JavaScript that only FLOW/LAB uses to `dist/kanban-assets/`. React and the
-design system go to `dist/assets/`, because the public login page needs them
-too.
-
-## Netlify password protection
-
-The `protect-kanban` Edge Function protects `KanbanFlowLab.html` and everything
-under `/kanban-assets/`, so the course content can't be downloaded without
-signing in. Configure these environment variables for the site in the Netlify
-dashboard for production and any deploy contexts where the page should be
-protected. By default, Netlify variables are available to all scopes; if your
-plan lets you choose a scope, select **Functions** (Edge Functions use this
-scope too):
-
-- `KANBAN_PASSWORD`: the password users must enter.
-- `SESSION_SECRET`: a randomly generated secret used to sign one-hour sessions.
-
-Keep both values out of the repository. After setting them, trigger a new
-deployment. The session cookie uses `Path=/` so it is also sent with requests
-for the protected scripts. Use a strong, unique password; the previous
-client-side password should be considered disclosed and changed.
+`netlify.toml` runs `npm run build` and publishes `dist/`.
