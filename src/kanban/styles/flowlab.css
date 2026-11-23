@@ -530,10 +530,6 @@ input[type=range] { accent-color: var(--color-accent); width: 100%; }
   padding: 10px 14px; border-bottom: 1px solid var(--color-divider);
 }
 .chat-widget__title { font-family: var(--font-heading); font-weight: 600; font-size: 18px; }
-.chat-widget__placeholder {
-  height: min(420px, 60vh); margin: 14px; padding: 16px;
-  display: flex; align-items: center; justify-content: center; text-align: center;
-  background: repeating-linear-gradient(45deg, var(--color-neutral-200) 0 8px, var(--color-bg) 8px 16px);
-  font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--color-neutral-800);
-}
-.chat-widget__toggle { min-height: 48px; padding: 0 18px; font-size: 16px; box-shadow: var(--shadow-md); }
+.chat-widget__message { margin: 0; padding: 14px; font-size: 14px; }
+/* H6: keep the BOTSchool chat above the sticky header (20), below the toast (40) and glossary (45, 60). */
+bsc-chat { position: relative; z-index: 35; }
